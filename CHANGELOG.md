@@ -4,6 +4,18 @@
 
 [1]: https://pypi.org/project/google-cloud-spanner/#history
 
+## [3.4.0](https://www.github.com/googleapis/python-spanner/compare/v3.3.0...v3.4.0) (2021-04-16)
+
+
+### Features
+
+* add samples for CMEK support ([#275](https://www.github.com/googleapis/python-spanner/issues/275)) ([f8d9bd3](https://www.github.com/googleapis/python-spanner/commit/f8d9bd33e04675a8dca148c2fae4a9133beebbca))
+
+
+### Bug Fixes
+
+* support INSERT from SELECT clause with args ([#306](https://www.github.com/googleapis/python-spanner/issues/306)) ([0dcda5e](https://www.github.com/googleapis/python-spanner/commit/0dcda5e21f8fb30ee611fddf0829684d86ced0ef))
+
 ## [3.3.0](https://www.github.com/googleapis/python-spanner/compare/v3.2.0...v3.3.0) (2021-03-25)
 
 
