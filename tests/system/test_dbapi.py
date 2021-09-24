@@ -14,11 +14,12 @@
 
 import hashlib
 import pickle
+import pkg_resources
 
 import pytest
 
 from google.cloud import spanner_v1
-from google.cloud.spanner_dbapi.connection import Connection
+from google.cloud.spanner_dbapi.connection import connect, Connection
 from . import _helpers
 
 DATABASE_NAME = "dbapi-txn"
@@ -279,7 +280,7 @@ VALUES (%s, %s, %s, %s)
     conn.commit()
 
     cursor.executemany(
-        """SELECT * FROM contacts WHERE contact_id = @a1""", ({"a1": 1}, {"a1": 2}),
+        """SELECT * FROM contacts WHERE contact_id = %s""", ((1,), (2,)),
     )
     res = cursor.fetchall()
     conn.commit()
@@ -350,3 +351,19 @@ def test_DDL_commit(shared_instance, dbapi_database):
 
     cur.execute("DROP TABLE Singers")
     conn.commit()
+
+
+def test_ping(shared_instance, dbapi_database):
+    """Check connection validation method."""
+    conn = Connection(shared_instance, dbapi_database)
+    conn.validate()
+    conn.close()
+
+
+def test_user_agent(shared_instance, dbapi_database):
+    """Check that DB API uses an appropriate user agent."""
+    conn = connect(shared_instance.name, dbapi_database.name)
+    assert (
+        conn.instance._client._client_info.user_agent
+        == "dbapi/" + pkg_resources.get_distribution("google-cloud-spanner").version
+    )

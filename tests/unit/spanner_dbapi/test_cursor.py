@@ -251,6 +251,13 @@ class TestCursor(unittest.TestCase):
             with self.assertRaises(IntegrityError):
                 cursor.execute(sql="sql")
 
+        with mock.patch(
+            "google.cloud.spanner_dbapi.parse_utils.classify_stmt",
+            side_effect=exceptions.OutOfRange("message"),
+        ):
+            with self.assertRaises(IntegrityError):
+                cursor.execute("sql")
+
     def test_execute_invalid_argument(self):
         from google.api_core import exceptions
         from google.cloud.spanner_dbapi.exceptions import ProgrammingError
@@ -332,13 +339,7 @@ class TestCursor(unittest.TestCase):
 
         sql = "DELETE FROM table WHERE col1 = %s"
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         connection.autocommit = True
         transaction = self._transaction_mock()
@@ -369,13 +370,7 @@ class TestCursor(unittest.TestCase):
 
         sql = "UPDATE table SET col1 = %s WHERE col2 = %s"
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         connection.autocommit = True
         transaction = self._transaction_mock()
@@ -418,13 +413,7 @@ class TestCursor(unittest.TestCase):
 
         sql = """INSERT INTO table (col1, "col2", `col3`, `"col4"`) VALUES (%s, %s, %s, %s)"""
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         transaction = self._transaction_mock()
 
@@ -461,13 +450,7 @@ class TestCursor(unittest.TestCase):
 
         sql = """INSERT INTO table (col1, "col2", `col3`, `"col4"`) VALUES (%s, %s, %s, %s)"""
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         connection.autocommit = True
 
@@ -510,13 +493,7 @@ class TestCursor(unittest.TestCase):
         sql = """INSERT INTO table (col1, "col2", `col3`, `"col4"`) VALUES (%s, %s, %s, %s)"""
         err_details = "Details here"
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         connection.autocommit = True
         cursor = connection.cursor()
@@ -546,13 +523,7 @@ class TestCursor(unittest.TestCase):
         sql = """INSERT INTO table (col1, "col2", `col3`, `"col4"`) VALUES (%s, %s, %s, %s)"""
         err_details = "Aborted details here"
 
-        with mock.patch(
-            "google.cloud.spanner_v1.instance.Instance.exists", return_value=True
-        ):
-            with mock.patch(
-                "google.cloud.spanner_v1.database.Database.exists", return_value=True,
-            ):
-                connection = connect("test-instance", "test-database")
+        connection = connect("test-instance", "test-database")
 
         transaction1 = mock.Mock(committed=False, rolled_back=False)
         transaction1.batch_update = mock.Mock(

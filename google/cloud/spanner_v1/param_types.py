@@ -28,9 +28,10 @@ FLOAT64 = Type(code=TypeCode.FLOAT64)
 DATE = Type(code=TypeCode.DATE)
 TIMESTAMP = Type(code=TypeCode.TIMESTAMP)
 NUMERIC = Type(code=TypeCode.NUMERIC)
+JSON = Type(code=TypeCode.JSON)
 
 
-def Array(element_type):  # pylint: disable=invalid-name
+def Array(element_type):
     """Construct an array parameter type description protobuf.
 
     :type element_type: :class:`~google.cloud.spanner_v1.types.Type`
@@ -42,7 +43,7 @@ def Array(element_type):  # pylint: disable=invalid-name
     return Type(code=TypeCode.ARRAY, array_element_type=element_type)
 
 
-def StructField(name, field_type):  # pylint: disable=invalid-name
+def StructField(name, field_type):
     """Construct a field description protobuf.
 
     :type name: str
@@ -57,7 +58,7 @@ def StructField(name, field_type):  # pylint: disable=invalid-name
     return StructType.Field(name=name, type_=field_type)
 
 
-def Struct(fields):  # pylint: disable=invalid-name
+def Struct(fields):
     """Construct a struct parameter type description protobuf.
 
     :type fields: list of :class:`google.cloud.spanner_v1.types.StructType.Field`
