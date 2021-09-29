@@ -200,12 +200,10 @@ def test_backup_workflow(
 
 
 def test_copy_backup_workflow(
-    shared_instance,
-    shared_database,
-    database_version_time,
-    backups_to_delete,
+    shared_instance, shared_database, database_version_time, backups_to_delete,
 ):
     from google.cloud.spanner_admin_database_v1 import (
+        CreateBackupEncryptionConfig,
         CopyBackupEncryptionConfig,
         EncryptionInfo,
     )
@@ -215,9 +213,14 @@ def test_copy_backup_workflow(
     expire_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         days=3
     )
-    encryption_enum = CopyBackupEncryptionConfig.EncryptionType
-    encryption_config = CopyBackupEncryptionConfig(
-        encryption_type=encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
+    copy_encryption_enum = CopyBackupEncryptionConfig.EncryptionType
+    copy_encryption_config = CopyBackupEncryptionConfig(
+        encryption_type=copy_encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
+    )
+
+    source_encryption_enum = CreateBackupEncryptionConfig.EncryptionType
+    source_encryption_config = CreateBackupEncryptionConfig(
+        encryption_type=source_encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
     )
 
     # Create backup.
@@ -226,18 +229,18 @@ def test_copy_backup_workflow(
         database=shared_database,
         expire_time=expire_time,
         version_time=database_version_time,
-        encryption_config=encryption_config,
+        encryption_config=source_encryption_config,
     )
-    operation=source_backup.create()
+    operation = source_backup.create()
     backups_to_delete.append(source_backup)
     operation.result()  # blocks indefinitely
 
     # Create a copy backup
     copy_backup = shared_instance.copy_backup(
-        backup_id,
-        source_backup_id,
-        expire_time,
-        encryption_config,
+        backup_id=backup_id,
+        source_backup=source_backup.name,
+        expire_time=expire_time,
+        encryption_config=copy_encryption_config,
     )
     operation = copy_backup.create()
     backups_to_delete.append(copy_backup)

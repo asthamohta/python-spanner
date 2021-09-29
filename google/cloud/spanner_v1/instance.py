@@ -552,11 +552,7 @@ class Instance(object):
             )
 
     def copy_backup(
-        self,
-        backup_id,
-        source_backup_id,
-        expire_time=None,
-        encryption_config=None,
+        self, backup_id, source_backup, expire_time=None, encryption_config=None,
     ):
         """Factory to create a copy backup within this instance.
 
@@ -582,22 +578,13 @@ class Instance(object):
             :rtype: :class:`~google.cloud.spanner_v1.backup.Backup`
             :returns: a copy backup owned by this instance.
             """
-        try:
-            return Backup(
-                backup_id,
-                self,
-                source_backup_id,
-                expire_time=expire_time,
-                encryption_config=encryption_config,
-            )
-        except AttributeError:
-            return Backup(
-                backup_id,
-                self,
-                source_backup_id,
-                expire_time=expire_time,
-                encryption_config=encryption_config,
-            ) 
+        return Backup(
+            backup_id,
+            self,
+            source_backup=source_backup,
+            expire_time=expire_time,
+            encryption_config=encryption_config,
+        )
 
     def list_backups(self, filter_="", page_size=None):
         """List backups for the instance.
