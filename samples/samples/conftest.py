@@ -20,6 +20,7 @@ from google.api_core import exceptions
 from google.cloud.spanner_v1 import backup
 from google.cloud.spanner_v1 import client
 from google.cloud.spanner_v1 import database
+
 from google.cloud.spanner_v1 import instance
 import pytest
 from test_utils import retry
@@ -42,7 +43,7 @@ def sample_name():
 @pytest.fixture(scope="session")
 def spanner_client():
     """Shared client used across all samples in a session."""
-    return client.Client()
+    return client.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
 
 
 def scrub_instance_ignore_not_found(to_scrub):

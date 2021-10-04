@@ -37,8 +37,10 @@ def unique_backup_id():
 
 RESTORE_DB_ID = unique_database_id()
 BACKUP_ID = unique_backup_id()
+COPY_BACKUP_ID = unique_backup_id()
 CMEK_RESTORE_DB_ID = unique_database_id()
 CMEK_BACKUP_ID = unique_backup_id()
+CMEK_COPY_BACKUP_ID = unique_backup_id()
 RETENTION_DATABASE_ID = unique_database_id()
 RETENTION_PERIOD = "7d"
 
@@ -155,3 +157,31 @@ def test_create_database_with_retention_period(capsys, sample_instance):
     assert ("retention period " + RETENTION_PERIOD) in out
     database = sample_instance.database(RETENTION_DATABASE_ID)
     database.drop()
+
+@pytest.mark.dependency()
+def test_copy_backup(capsys, instance_id, sample_database):
+    
+    backup_sample.copy_backup(
+        instance_id,
+        sample_database.database_id,
+        COPY_BACKUP_ID,
+        BACKUP_ID
+    )
+    out, _ = capsys.readouterr()
+    assert COPY_BACKUP_ID in out
+
+
+@pytest.mark.dependency()
+def test_copy_backup_with_encryption_key(
+    capsys, instance_id, sample_database, kms_key_name,
+):
+    backup_sample.copy_backup_with_encryption_key(
+        instance_id,
+        sample_database.database_id,
+        CMEK_COPY_BACKUP_ID,
+        CMEK_BACKUP_ID,
+        kms_key_name,
+    )
+    out, _ = capsys.readouterr()
+    assert CMEK_COPY_BACKUP_ID in out
+    assert kms_key_name in out

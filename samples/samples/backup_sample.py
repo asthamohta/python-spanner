@@ -28,7 +28,7 @@ from google.cloud import spanner
 # [START spanner_create_backup]
 def create_backup(instance_id, database_id, backup_id, version_time):
     """Creates a backup for a database."""
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     database = instance.database(database_id)
 
@@ -60,7 +60,7 @@ def create_backup_with_encryption_key(instance_id, database_id, backup_id, kms_k
     """Creates a backup for a database using a Customer Managed Encryption Key (CMEK)."""
     from google.cloud.spanner_admin_database_v1 import CreateBackupEncryptionConfig
 
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     database = instance.database(database_id)
 
@@ -95,7 +95,7 @@ def create_backup_with_encryption_key(instance_id, database_id, backup_id, kms_k
 # [START spanner_restore_backup]
 def restore_database(instance_id, new_database_id, backup_id):
     """Restores a database from a backup."""
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     # Create a backup on database_id.
 
@@ -128,7 +128,7 @@ def restore_database_with_encryption_key(instance_id, new_database_id, backup_id
     """Restores a database from a backup using a Customer Managed Encryption Key (CMEK)."""
     from google.cloud.spanner_admin_database_v1 import RestoreDatabaseEncryptionConfig
 
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
 
     # Start restoring an existing backup to a new database.
@@ -161,7 +161,7 @@ def restore_database_with_encryption_key(instance_id, new_database_id, backup_id
 
 # [START spanner_cancel_backup_create]
 def cancel_backup(instance_id, database_id, backup_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     database = instance.database(database_id)
 
@@ -193,7 +193,7 @@ def cancel_backup(instance_id, database_id, backup_id):
 
 # [START spanner_list_backup_operations]
 def list_backup_operations(instance_id, database_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
 
     # List the CreateBackup operations.
@@ -217,7 +217,7 @@ def list_backup_operations(instance_id, database_id):
 
 # [START spanner_list_database_operations]
 def list_database_operations(instance_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
 
     # List the progress of restore.
@@ -239,7 +239,7 @@ def list_database_operations(instance_id):
 
 # [START spanner_list_backups]
 def list_backups(instance_id, database_id, backup_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
 
     # List all backups.
@@ -300,7 +300,7 @@ def list_backups(instance_id, database_id, backup_id):
 
 # [START spanner_delete_backup]
 def delete_backup(instance_id, backup_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     backup = instance.backup(backup_id)
     backup.reload()
@@ -323,7 +323,7 @@ def delete_backup(instance_id, backup_id):
 
 # [START spanner_update_backup]
 def update_backup(instance_id, backup_id):
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     backup = instance.backup(backup_id)
     backup.reload()
@@ -345,7 +345,7 @@ def update_backup(instance_id, backup_id):
 # [START spanner_create_database_with_version_retention_period]
 def create_database_with_version_retention_period(instance_id, database_id, retention_period):
     """Creates a database with a version retention period."""
-    spanner_client = spanner.Client()
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
     ddl_statements = [
         "CREATE TABLE Singers ("
@@ -380,6 +380,83 @@ def create_database_with_version_retention_period(instance_id, database_id, rete
 
 # [END spanner_create_database_with_version_retention_period]
 
+# [START spanner_copy_backup]
+def copy_backup(instance_id, database_id, backup_id, source_backup_id):
+    """Copied a backup for a database."""
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
+    instance = spanner_client.instance(instance_id)
+    database = instance.database(database_id)
+
+    # Create a source backup and wait for create backup operation to complete.
+    expire_time = datetime.utcnow() + timedelta(days=14)
+    source_backup = instance.backup(source_backup_id, database=database, expire_time=expire_time)
+    operation = source_backup.create()
+    operation.result(1200)
+
+    # Create a copy backup and wait for backup operation to complete.
+    copy_backup = instance.copy_backup(backup_id, source_backup=source_backup.name, expire_time=expire_time)
+    operation = copy_backup.create()
+
+    # Wait for copy backup operation to complete.
+    operation.result(1200)
+
+    # Verify that the copy backup is ready.
+    copy_backup.reload()
+    assert copy_backup.is_ready() is True
+
+    # Get the name, create time and backup size.
+    copy_backup.reload()
+
+    print(
+        "Backup {} of size {} bytes was created at {}".format(
+            copy_backup.name, copy_backup.size_bytes, copy_backup.create_time
+        )
+    )
+
+
+# [END spanner_copy_backup]
+
+# [START spanner_copy_backup_with_encryption_key]
+def copy_backup_with_encryption_key(instance_id, database_id, backup_id, source_backup_id, kms_key_name):
+    """Creates a backup for a database using a Customer Managed Encryption Key (CMEK)."""
+    from google.cloud.spanner_admin_database_v1 import CopyBackupEncryptionConfig
+
+    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
+    instance = spanner_client.instance(instance_id)
+    database = instance.database(database_id)
+
+    # Create a source backup and wait for create backup operation to complete.
+    expire_time = datetime.utcnow() + timedelta(days=14)
+    source_backup = instance.backup(source_backup_id, database=database, expire_time=expire_time)
+    operation = source_backup.create()
+    operation.result(1200)
+
+    # Create a copy backup and wait for backup operation to complete.
+    encryption_config = {
+        'encryption_type': CopyBackupEncryptionConfig.EncryptionType.CUSTOMER_MANAGED_ENCRYPTION,
+        'kms_key_name': kms_key_name,
+    }
+    copy_backup = instance.copy_backup(backup_id, source_backup=source_backup.name, expire_time=expire_time, encryption_config=encryption_config)
+    operation = copy_backup.create()
+
+    # Wait for copy backup operation to complete.
+    operation.result(1200)
+
+    # Verify that the copy backup is ready.
+    copy_backup.reload()
+    assert copy_backup.is_ready() is True
+
+    # Get the name, create time and backup size.
+    copy_backup.reload()
+    print(
+        "Backup {} of size {} bytes was created at {} with using encryption key {}.".format(
+            copy_backup.name, copy_backup.size_bytes, copy_backup.create_time, kms_key_name
+        )
+    )
+
+
+# [END spanner_copy_backup_with_encryption_key]
+
 
 if __name__ == "__main__":  # noqa: C901
     parser = argparse.ArgumentParser(
@@ -404,6 +481,7 @@ if __name__ == "__main__":  # noqa: C901
         "list_database_operations", help=list_database_operations.__doc__
     )
     subparsers.add_parser("delete_backup", help=delete_backup.__doc__)
+    subparsers.add_parser("copy_backup", help=copy_backup.__doc__)
 
     args = parser.parse_args()
 
@@ -423,5 +501,7 @@ if __name__ == "__main__":  # noqa: C901
         list_database_operations(args.instance_id)
     elif args.command == "delete_backup":
         delete_backup(args.instance_id, args.backup_id)
+    elif args.command == "copy_backup":
+        copy_backup(args.instance_id, args.database_id, args.backup_id, args.source_backup_id)
     else:
         print("Command {} did not match expected commands.".format(args.command))
