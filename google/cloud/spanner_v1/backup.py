@@ -76,10 +76,10 @@ class Backup(object):
         backup_id,
         instance,
         database="",
-        source_backup=None,
         expire_time=None,
         version_time=None,
         encryption_config=None,
+        source_backup=None,
     ):
         self.backup_id = backup_id
         self._instance = instance
