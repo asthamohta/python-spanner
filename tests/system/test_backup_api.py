@@ -114,7 +114,7 @@ def backups_to_delete():
         _helpers.retry_429_503(backup.delete)()
 
 
-def test_backup_workflow(
+def test_backup_and_copy_backup_workflow(
     shared_instance,
     shared_database,
     database_version_time,
@@ -126,15 +126,21 @@ def test_backup_workflow(
         EncryptionConfig,
         EncryptionInfo,
         RestoreDatabaseEncryptionConfig,
+        CopyBackupEncryptionConfig,
     )
 
     backup_id = _helpers.unique_id("backup_id", separator="_")
+    copy_backup_id = _helpers.unique_id("copy_backup_id", separator="_")
     expire_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         days=3
     )
     encryption_enum = CreateBackupEncryptionConfig.EncryptionType
     encryption_config = CreateBackupEncryptionConfig(
         encryption_type=encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
+    )
+    copy_encryption_enum = CopyBackupEncryptionConfig.EncryptionType
+    copy_encryption_config = CopyBackupEncryptionConfig(
+        encryption_type=copy_encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
     )
 
     # Create backup.
@@ -194,63 +200,22 @@ def test_backup_workflow(
     expected_encryption_config = EncryptionConfig()
     assert expected_encryption_config == database.encryption_config
 
-    database.drop()
-    backup.delete()
-    assert not backup.exists()
-
-
-def test_copy_backup_workflow(
-    shared_instance, shared_database, database_version_time, backups_to_delete,
-):
-    from google.cloud.spanner_admin_database_v1 import (
-        CreateBackupEncryptionConfig,
-        CopyBackupEncryptionConfig,
-        EncryptionInfo,
-    )
-
-    backup_id = _helpers.unique_id("backup_id", separator="_")
-    source_backup_id = _helpers.unique_id("source_backup_id", separator="_")
-    expire_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
-        days=3
-    )
-    copy_encryption_enum = CopyBackupEncryptionConfig.EncryptionType
-    copy_encryption_config = CopyBackupEncryptionConfig(
-        encryption_type=copy_encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
-    )
-
-    source_encryption_enum = CreateBackupEncryptionConfig.EncryptionType
-    source_encryption_config = CreateBackupEncryptionConfig(
-        encryption_type=source_encryption_enum.GOOGLE_DEFAULT_ENCRYPTION,
-    )
-
-    # Create backup.
-    source_backup = shared_instance.backup(
-        source_backup_id,
-        database=shared_database,
-        expire_time=expire_time,
-        version_time=database_version_time,
-        encryption_config=source_encryption_config,
-    )
-    operation = source_backup.create()
-    backups_to_delete.append(source_backup)
-    operation.result()  # blocks indefinitely
-
-    # Create a copy backup
+    # Create a copy backup.
     copy_backup = shared_instance.copy_backup(
-        backup_id=backup_id,
-        source_backup=source_backup.name,
+        backup_id=copy_backup_id,
+        source_backup=backup.name,
         expire_time=expire_time,
         encryption_config=copy_encryption_config,
     )
     operation = copy_backup.create()
     backups_to_delete.append(copy_backup)
 
-    # Check metadata.
-    # metadata = operation.metadata
-    # assert copy_backup.name == metadata.name
+    # Check metadata for copy backup.
+    metadata = operation.metadata
+    assert copy_backup.name == metadata.name
     operation.result()  # blocks indefinitely
 
-    # Check backup object.
+    # Check copy backup object.
     copy_backup.reload()
     assert expire_time == copy_backup.expire_time
     assert copy_backup.create_time is not None
@@ -268,12 +233,14 @@ def test_copy_backup_workflow(
     copy_backup.update_expire_time(valid_expire_time)
     assert valid_expire_time == copy_backup.expire_time
 
-    source_backup.delete()
+    database.drop()
+    backup.delete()
     copy_backup.delete()
+    assert not backup.exists()
     assert not copy_backup.exists()
 
 
-def test_backup_create_w_version_time_dflt_to_create_time(
+def _test_backup_create_w_version_time_dflt_to_create_time(
     shared_instance, shared_database, backups_to_delete, databases_to_delete,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -304,7 +271,7 @@ def test_backup_create_w_version_time_dflt_to_create_time(
     assert not backup.exists()
 
 
-def test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
+def _test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
     backup_id = _helpers.unique_id("backup_id", separator="_")
     expire_time = datetime.datetime.now(datetime.timezone.utc)
 
@@ -317,7 +284,7 @@ def test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
         op.result()  # blocks indefinitely
 
 
-def test_backup_create_w_invalid_version_time_past(
+def _test_backup_create_w_invalid_version_time_past(
     shared_instance, shared_database,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -340,7 +307,7 @@ def test_backup_create_w_invalid_version_time_past(
         op.result()  # blocks indefinitely
 
 
-def test_backup_create_w_invalid_version_time_future(
+def _test_backup_create_w_invalid_version_time_future(
     shared_instance, shared_database,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -363,7 +330,7 @@ def test_backup_create_w_invalid_version_time_future(
         op.result()  # blocks indefinitely
 
 
-def test_copy_backup_create_w_invalid_expire_time(
+def _test_copy_backup_create_w_invalid_expire_time(
     shared_instance, shared_database, backups_to_delete,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -393,7 +360,7 @@ def test_copy_backup_create_w_invalid_expire_time(
     source_backup.delete()
 
 
-def test_database_restore_to_diff_instance(
+def _test_database_restore_to_diff_instance(
     shared_instance,
     shared_database,
     backups_to_delete,
@@ -425,7 +392,7 @@ def test_database_restore_to_diff_instance(
     assert not backup.exists()
 
 
-def test_multi_create_cancel_update_error_restore_errors(
+def _test_multi_create_cancel_update_error_restore_errors(
     shared_instance,
     shared_database,
     second_database,
@@ -486,7 +453,7 @@ def test_multi_create_cancel_update_error_restore_errors(
             new_db.restore(source=backup1)
 
 
-def test_instance_list_backups(
+def _test_instance_list_backups(
     shared_instance,
     shared_database,
     second_database,

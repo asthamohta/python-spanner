@@ -389,9 +389,9 @@ def copy_backup(instance_id, database_id, backup_id, source_backup_id):
 
     # Create a source backup and wait for create backup operation to complete.
     expire_time = datetime.utcnow() + timedelta(days=14)
-    source_backup = instance.backup(source_backup_id, database=database, expire_time=expire_time)
-    operation = source_backup.create()
-    operation.result(1200)
+    source_backup = instance.backup(source_backup_id)
+    operation = source_backup.reload()
+    assert source_backup.is_ready() is True
 
     # Create a copy backup and wait for backup operation to complete.
     copy_backup = instance.copy_backup(backup_id, source_backup=source_backup.name, expire_time=expire_time)
