@@ -382,11 +382,10 @@ def create_database_with_version_retention_period(instance_id, database_id, rete
 # [END spanner_create_database_with_version_retention_period]
 
 # [START spanner_copy_backup]
-def copy_backup(instance_id, database_id, backup_id, source_backup_id):
+def copy_backup(instance_id, backup_id, source_backup_id):
     """Copied a backup for a database."""
     spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
     instance = spanner_client.instance(instance_id)
-    database = instance.database(database_id)
 
     # Create a source backup and wait for create backup operation to complete.
     expire_time = datetime.utcnow() + timedelta(days=14)

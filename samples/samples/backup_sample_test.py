@@ -159,11 +159,10 @@ def test_create_database_with_retention_period(capsys, sample_instance):
     database.drop()
 
 @pytest.mark.dependency(name="copy_backup",depends=["create_backup"])
-def test_copy_backup(capsys, instance_id, sample_database):
+def test_copy_backup(capsys, instance_id):
     
     backup_sample.copy_backup(
         instance_id,
-        sample_database.database_id,
         COPY_BACKUP_ID,
         BACKUP_ID
     )
