@@ -330,7 +330,8 @@ def update_backup(instance_id, backup_id):
 
     # Expire time must be within 366 days of the create time of the backup.
     old_expire_time = backup.expire_time
-    new_expire_time = old_expire_time + timedelta(days=30)
+    # New expire time should be less than the max expire time
+    new_expire_time = min(backup.max_expire_time, old_expire_time + timedelta(days=30))
     backup.update_expire_time(new_expire_time)
     print(
         "Backup {} expire time was updated from {} to {}.".format(

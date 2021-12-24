@@ -304,7 +304,7 @@ class _ReadAbortTrigger(object):
         self.handler_done.set()
 
 
-def _test_session_crud(sessions_database):
+def test_session_crud(sessions_database):
     session = sessions_database.session()
     assert not session.exists()
 
@@ -315,7 +315,7 @@ def _test_session_crud(sessions_database):
     _helpers.retry_false(session.exists)()
 
 
-def _test_batch_insert_then_read(sessions_database, ot_exporter):
+def test_batch_insert_then_read(sessions_database, ot_exporter):
     db_name = sessions_database.name
     sd = _sample_data
 
@@ -358,7 +358,7 @@ def _test_batch_insert_then_read(sessions_database, ot_exporter):
         )
 
 
-def _test_batch_insert_then_read_string_array_of_string(sessions_database):
+def test_batch_insert_then_read_string_array_of_string(sessions_database):
     table = "string_plus_array_of_string"
     columns = ["id", "name", "tags"]
     rowdata = [
@@ -379,7 +379,7 @@ def _test_batch_insert_then_read_string_array_of_string(sessions_database):
     sd._check_rows_data(rows, expected=rowdata)
 
 
-def _test_batch_insert_then_read_all_datatypes(sessions_database):
+def test_batch_insert_then_read_all_datatypes(sessions_database):
     sd = _sample_data
 
     with sessions_database.batch() as batch:
@@ -392,7 +392,7 @@ def _test_batch_insert_then_read_all_datatypes(sessions_database):
     sd._check_rows_data(rows, expected=ALL_TYPES_ROWDATA)
 
 
-def _test_batch_insert_or_update_then_query(sessions_database):
+def test_batch_insert_or_update_then_query(sessions_database):
     sd = _sample_data
 
     with sessions_database.batch() as batch:
@@ -404,7 +404,7 @@ def _test_batch_insert_or_update_then_query(sessions_database):
     sd._check_rows_data(rows)
 
 
-def _test_batch_insert_w_commit_timestamp(sessions_database):
+def test_batch_insert_w_commit_timestamp(sessions_database):
     table = "users_history"
     columns = ["id", "commit_ts", "name", "email", "deleted"]
     user_id = 1234
@@ -431,7 +431,7 @@ def _test_batch_insert_w_commit_timestamp(sessions_database):
 
 
 @_helpers.retry_mabye_aborted_txn
-def _test_transaction_read_and_insert_then_rollback(
+def test_transaction_read_and_insert_then_rollback(
     sessions_database, ot_exporter, sessions_to_delete,
 ):
     sd = _sample_data
@@ -521,7 +521,7 @@ def _test_transaction_read_and_insert_then_rollback(
 
 
 @_helpers.retry_mabye_conflict
-def _test_transaction_read_and_insert_then_exception(sessions_database):
+def test_transaction_read_and_insert_then_exception(sessions_database):
     class CustomException(Exception):
         pass
 
@@ -548,7 +548,7 @@ def _test_transaction_read_and_insert_then_exception(sessions_database):
 
 
 @_helpers.retry_mabye_conflict
-def _test_transaction_read_and_insert_or_update_then_commit(
+def test_transaction_read_and_insert_or_update_then_commit(
     sessions_database, sessions_to_delete,
 ):
     # [START spanner_test_dml_read_your_writes]
@@ -586,7 +586,7 @@ def _generate_insert_statements():
 
 
 @_helpers.retry_mabye_conflict
-def _test_transaction_execute_sql_w_dml_read_rollback(
+def test_transaction_execute_sql_w_dml_read_rollback(
     sessions_database, sessions_to_delete,
 ):
     # [START spanner_test_dml_rollback_txn_not_committed]
@@ -622,7 +622,7 @@ def _test_transaction_execute_sql_w_dml_read_rollback(
 
 
 @_helpers.retry_mabye_conflict
-def _test_transaction_execute_update_read_commit(sessions_database, sessions_to_delete):
+def test_transaction_execute_update_read_commit(sessions_database, sessions_to_delete):
     # [START spanner_test_dml_read_your_writes]
     sd = _sample_data
 
@@ -651,7 +651,7 @@ def _test_transaction_execute_update_read_commit(sessions_database, sessions_to_
 
 
 @_helpers.retry_mabye_conflict
-def _test_transaction_execute_update_then_insert_commit(
+def test_transaction_execute_update_then_insert_commit(
     sessions_database, sessions_to_delete
 ):
     # [START spanner_test_dml_with_mutation]
@@ -682,7 +682,7 @@ def _test_transaction_execute_update_then_insert_commit(
     # [END spanner_test_dml_with_mutation]
 
 
-def _test_transaction_batch_update_success(sessions_database, sessions_to_delete):
+def test_transaction_batch_update_success(sessions_database, sessions_to_delete):
     # [START spanner_test_dml_with_mutation]
     # [START spanner_test_dml_update]
     sd = _sample_data
@@ -728,7 +728,7 @@ def _test_transaction_batch_update_success(sessions_database, sessions_to_delete
     # [END spanner_test_dml_update]
 
 
-def _test_transaction_batch_update_and_execute_dml(
+def test_transaction_batch_update_and_execute_dml(
     sessions_database, sessions_to_delete,
 ):
     sd = _sample_data
@@ -775,7 +775,9 @@ def _test_transaction_batch_update_and_execute_dml(
     sd._check_rows_data(rows, [])
 
 
-def _test_transaction_batch_update_w_syntax_error(sessions_database, sessions_to_delete):
+def test_transaction_batch_update_w_syntax_error(
+    sessions_database, sessions_to_delete
+):
     from google.rpc import code_pb2
 
     sd = _sample_data
@@ -814,7 +816,7 @@ def _test_transaction_batch_update_w_syntax_error(sessions_database, sessions_to
     session.run_in_transaction(unit_of_work)
 
 
-def _test_transaction_batch_update_wo_statements(sessions_database, sessions_to_delete):
+def test_transaction_batch_update_wo_statements(sessions_database, sessions_to_delete):
     session = sessions_database.session()
     session.create()
     sessions_to_delete.append(session)
@@ -827,7 +829,7 @@ def _test_transaction_batch_update_wo_statements(sessions_database, sessions_to_
 @pytest.mark.skipif(
     not ot_helpers.HAS_OPENTELEMETRY_INSTALLED, reason="trace requires OpenTelemetry",
 )
-def _test_transaction_batch_update_w_parent_span(
+def test_transaction_batch_update_w_parent_span(
     sessions_database, sessions_to_delete, ot_exporter,
 ):
     from opentelemetry import trace
@@ -884,7 +886,7 @@ def _test_transaction_batch_update_w_parent_span(
         assert span.parent.span_id == span_list[-1].context.span_id
 
 
-def _test_execute_partitioned_dml(sessions_database):
+def test_execute_partitioned_dml(sessions_database):
     # [START spanner_test_dml_partioned_dml_update]
     sd = _sample_data
     param_types = spanner_v1.param_types
@@ -982,7 +984,7 @@ def _read_w_concurrent_update(transaction, pkey):
     transaction.update(COUNTERS_TABLE, COUNTERS_COLUMNS, [[pkey, value + 1]])
 
 
-def _test_transaction_read_w_concurrent_updates(sessions_database):
+def test_transaction_read_w_concurrent_updates(sessions_database):
     pkey = "read_w_concurrent_updates"
     _transaction_concurrency_helper(sessions_database, _read_w_concurrent_update, pkey)
 
@@ -1000,12 +1002,12 @@ def _query_w_concurrent_update(transaction, pkey):
     transaction.update(COUNTERS_TABLE, COUNTERS_COLUMNS, [[pkey, value + 1]])
 
 
-def _test_transaction_query_w_concurrent_updates(sessions_database):
+def test_transaction_query_w_concurrent_updates(sessions_database):
     pkey = "query_w_concurrent_updates"
     _transaction_concurrency_helper(sessions_database, _query_w_concurrent_update, pkey)
 
 
-def _test_transaction_read_w_abort(not_emulator, sessions_database):
+def test_transaction_read_w_abort(not_emulator, sessions_database):
     sd = _sample_data
     trigger = _ReadAbortTrigger()
 
@@ -1054,7 +1056,7 @@ def _set_up_table(database, row_count):
     return committed
 
 
-def _test_read_with_single_keys_index(sessions_database):
+def test_read_with_single_keys_index(sessions_database):
     # [START spanner_test_single_key_index_read]
     sd = _sample_data
     row_count = 10
@@ -1074,7 +1076,7 @@ def _test_read_with_single_keys_index(sessions_database):
     # [END spanner_test_single_key_index_read]
 
 
-def _test_empty_read_with_single_keys_index(sessions_database):
+def test_empty_read_with_single_keys_index(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1089,7 +1091,7 @@ def _test_empty_read_with_single_keys_index(sessions_database):
     assert rows == []
 
 
-def _test_read_with_multiple_keys_index(sessions_database):
+def test_read_with_multiple_keys_index(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1105,7 +1107,7 @@ def _test_read_with_multiple_keys_index(sessions_database):
     assert rows == expected
 
 
-def _test_snapshot_read_w_various_staleness(sessions_database):
+def test_snapshot_read_w_various_staleness(sessions_database):
     sd = _sample_data
     row_count = 400
     committed = _set_up_table(sessions_database, row_count)
@@ -1141,7 +1143,7 @@ def _test_snapshot_read_w_various_staleness(sessions_database):
         sd._check_row_data(rows, all_data_rows)
 
 
-def _test_multiuse_snapshot_read_isolation_strong(sessions_database):
+def test_multiuse_snapshot_read_isolation_strong(sessions_database):
     sd = _sample_data
     row_count = 40
     _set_up_table(sessions_database, row_count)
@@ -1157,7 +1159,7 @@ def _test_multiuse_snapshot_read_isolation_strong(sessions_database):
         sd._check_row_data(after, all_data_rows)
 
 
-def _test_multiuse_snapshot_read_isolation_read_timestamp(sessions_database):
+def test_multiuse_snapshot_read_isolation_read_timestamp(sessions_database):
     sd = _sample_data
     row_count = 40
     committed = _set_up_table(sessions_database, row_count)
@@ -1177,7 +1179,7 @@ def _test_multiuse_snapshot_read_isolation_read_timestamp(sessions_database):
         sd._check_row_data(after, all_data_rows)
 
 
-def _test_multiuse_snapshot_read_isolation_exact_staleness(sessions_database):
+def test_multiuse_snapshot_read_isolation_exact_staleness(sessions_database):
     sd = _sample_data
     row_count = 40
 
@@ -1199,7 +1201,9 @@ def _test_multiuse_snapshot_read_isolation_exact_staleness(sessions_database):
         sd._check_row_data(after, all_data_rows)
 
 
-def _test_read_w_index(shared_instance, database_operation_timeout, databases_to_delete):
+def test_read_w_index(
+    shared_instance, database_operation_timeout, databases_to_delete
+):
     # Indexed reads cannot return non-indexed columns
     sd = _sample_data
     row_count = 2000
@@ -1228,7 +1232,7 @@ def _test_read_w_index(shared_instance, database_operation_timeout, databases_to
     sd._check_rows_data(rows, expected)
 
 
-def _test_read_w_single_key(sessions_database):
+def test_read_w_single_key(sessions_database):
     # [START spanner_test_single_key_read]
     sd = _sample_data
     row_count = 40
@@ -1243,7 +1247,7 @@ def _test_read_w_single_key(sessions_database):
     # [END spanner_test_single_key_read]
 
 
-def _test_empty_read(sessions_database):
+def test_empty_read(sessions_database):
     # [START spanner_test_empty_read]
     sd = _sample_data
     row_count = 40
@@ -1256,7 +1260,7 @@ def _test_empty_read(sessions_database):
     # [END spanner_test_empty_read]
 
 
-def _test_read_w_multiple_keys(sessions_database):
+def test_read_w_multiple_keys(sessions_database):
     sd = _sample_data
     row_count = 40
     indices = [0, 5, 17]
@@ -1276,7 +1280,7 @@ def _test_read_w_multiple_keys(sessions_database):
     sd._check_row_data(rows, expected)
 
 
-def _test_read_w_limit(sessions_database):
+def test_read_w_limit(sessions_database):
     sd = _sample_data
     row_count = 3000
     limit = 100
@@ -1290,7 +1294,7 @@ def _test_read_w_limit(sessions_database):
     sd._check_row_data(rows, expected)
 
 
-def _test_read_w_ranges(sessions_database):
+def test_read_w_ranges(sessions_database):
     sd = _sample_data
     row_count = 3000
     start = 1000
@@ -1332,7 +1336,7 @@ def _test_read_w_ranges(sessions_database):
         sd._check_row_data(rows, expected)
 
 
-def _test_read_partial_range_until_end(sessions_database):
+def test_read_partial_range_until_end(sessions_database):
     sd = _sample_data
     row_count = 3000
     start = 1000
@@ -1361,7 +1365,7 @@ def _test_read_partial_range_until_end(sessions_database):
                 sd._check_row_data(rows, expected)
 
 
-def _test_read_partial_range_from_beginning(sessions_database):
+def test_read_partial_range_from_beginning(sessions_database):
     sd = _sample_data
     row_count = 3000
     end = 2000
@@ -1389,7 +1393,7 @@ def _test_read_partial_range_from_beginning(sessions_database):
         sd._check_row_data(rows, expected)
 
 
-def _test_read_with_range_keys_index_single_key(sessions_database):
+def test_read_with_range_keys_index_single_key(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1404,7 +1408,7 @@ def _test_read_with_range_keys_index_single_key(sessions_database):
         assert rows == data[start : start + 1]
 
 
-def _test_read_with_range_keys_index_closed_closed(sessions_database):
+def test_read_with_range_keys_index_closed_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1419,7 +1423,7 @@ def _test_read_with_range_keys_index_closed_closed(sessions_database):
         assert rows == data[start : end + 1]
 
 
-def _test_read_with_range_keys_index_closed_open(sessions_database):
+def test_read_with_range_keys_index_closed_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1434,7 +1438,7 @@ def _test_read_with_range_keys_index_closed_open(sessions_database):
         assert rows == data[start:end]
 
 
-def _test_read_with_range_keys_index_open_closed(sessions_database):
+def test_read_with_range_keys_index_open_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1449,7 +1453,7 @@ def _test_read_with_range_keys_index_open_closed(sessions_database):
         assert rows == data[start + 1 : end + 1]
 
 
-def _test_read_with_range_keys_index_open_open(sessions_database):
+def test_read_with_range_keys_index_open_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1464,7 +1468,7 @@ def _test_read_with_range_keys_index_open_open(sessions_database):
         assert rows == data[start + 1 : end]
 
 
-def _test_read_with_range_keys_index_limit_closed_closed(sessions_database):
+def test_read_with_range_keys_index_limit_closed_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1479,7 +1483,7 @@ def _test_read_with_range_keys_index_limit_closed_closed(sessions_database):
         assert rows == expected[:limit]
 
 
-def _test_read_with_range_keys_index_limit_closed_open(sessions_database):
+def test_read_with_range_keys_index_limit_closed_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1494,7 +1498,7 @@ def _test_read_with_range_keys_index_limit_closed_open(sessions_database):
         assert rows == expected[:limit]
 
 
-def _test_read_with_range_keys_index_limit_open_closed(sessions_database):
+def test_read_with_range_keys_index_limit_open_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1509,7 +1513,7 @@ def _test_read_with_range_keys_index_limit_open_closed(sessions_database):
         assert rows == expected[:limit]
 
 
-def _test_read_with_range_keys_index_limit_open_open(sessions_database):
+def test_read_with_range_keys_index_limit_open_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1524,7 +1528,7 @@ def _test_read_with_range_keys_index_limit_open_open(sessions_database):
         assert rows == expected[:limit]
 
 
-def _test_read_with_range_keys_and_index_closed_closed(sessions_database):
+def test_read_with_range_keys_and_index_closed_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1541,7 +1545,7 @@ def _test_read_with_range_keys_and_index_closed_closed(sessions_database):
         assert rows == expected
 
 
-def _test_read_with_range_keys_and_index_closed_open(sessions_database):
+def test_read_with_range_keys_and_index_closed_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1557,7 +1561,7 @@ def _test_read_with_range_keys_and_index_closed_open(sessions_database):
         assert rows == expected
 
 
-def _test_read_with_range_keys_and_index_open_closed(sessions_database):
+def test_read_with_range_keys_and_index_open_closed(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1573,7 +1577,7 @@ def _test_read_with_range_keys_and_index_open_closed(sessions_database):
         assert rows == expected
 
 
-def _test_read_with_range_keys_and_index_open_open(sessions_database):
+def test_read_with_range_keys_and_index_open_open(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1589,7 +1593,7 @@ def _test_read_with_range_keys_and_index_open_open(sessions_database):
         assert rows == expected
 
 
-def _test_partition_read_w_index(sessions_database):
+def test_partition_read_w_index(sessions_database):
     sd = _sample_data
     row_count = 10
     columns = sd.COLUMNS[1], sd.COLUMNS[2]
@@ -1610,7 +1614,7 @@ def _test_partition_read_w_index(sessions_database):
     batch_txn.close()
 
 
-def _test_execute_sql_w_manual_consume(sessions_database):
+def test_execute_sql_w_manual_consume(sessions_database):
     sd = _sample_data
     row_count = 3000
     committed = _set_up_table(sessions_database, row_count)
@@ -1642,7 +1646,7 @@ def _check_sql_results(
     )
 
 
-def _test_multiuse_snapshot_execute_sql_isolation_strong(sessions_database):
+def test_multiuse_snapshot_execute_sql_isolation_strong(sessions_database):
     sd = _sample_data
     row_count = 40
     _set_up_table(sessions_database, row_count)
@@ -1660,7 +1664,7 @@ def _test_multiuse_snapshot_execute_sql_isolation_strong(sessions_database):
         sd._check_row_data(after, all_data_rows)
 
 
-def _test_execute_sql_returning_array_of_struct(sessions_database):
+def test_execute_sql_returning_array_of_struct(sessions_database):
     sql = (
         "SELECT ARRAY(SELECT AS STRUCT C1, C2 "
         "FROM (SELECT 'a' AS C1, 1 AS C2 "
@@ -1676,7 +1680,7 @@ def _test_execute_sql_returning_array_of_struct(sessions_database):
     )
 
 
-def _test_execute_sql_returning_empty_array_of_struct(sessions_database):
+def test_execute_sql_returning_empty_array_of_struct(sessions_database):
     sql = (
         "SELECT ARRAY(SELECT AS STRUCT C1, C2 "
         "FROM (SELECT 2 AS C1) X "
@@ -1691,7 +1695,7 @@ def _test_execute_sql_returning_empty_array_of_struct(sessions_database):
     )
 
 
-def _test_invalid_type(sessions_database):
+def test_invalid_type(sessions_database):
     sd = _sample_data
     table = "counters"
     columns = ("name", "value")
@@ -1708,7 +1712,7 @@ def _test_invalid_type(sessions_database):
             batch.insert(table, columns, invalid_input)
 
 
-def _test_execute_sql_select_1(sessions_database):
+def test_execute_sql_select_1(sessions_database):
 
     sessions_database.snapshot(multi_use=True)
 
@@ -1797,29 +1801,29 @@ def _bind_test_helper(
     )
 
 
-def _test_execute_sql_w_string_bindings(sessions_database):
+def test_execute_sql_w_string_bindings(sessions_database):
     _bind_test_helper(
         sessions_database, spanner_v1.TypeCode.STRING, "Phred", ["Phred", "Bharney"]
     )
 
 
-def _test_execute_sql_w_bool_bindings(sessions_database):
+def test_execute_sql_w_bool_bindings(sessions_database):
     _bind_test_helper(
         sessions_database, spanner_v1.TypeCode.BOOL, True, [True, False, True]
     )
 
 
-def _test_execute_sql_w_int64_bindings(sessions_database):
+def test_execute_sql_w_int64_bindings(sessions_database):
     _bind_test_helper(sessions_database, spanner_v1.TypeCode.INT64, 42, [123, 456, 789])
 
 
-def _test_execute_sql_w_float64_bindings(sessions_database):
+def test_execute_sql_w_float64_bindings(sessions_database):
     _bind_test_helper(
         sessions_database, spanner_v1.TypeCode.FLOAT64, 42.3, [12.3, 456.0, 7.89]
     )
 
 
-def _test_execute_sql_w_float_bindings_transfinite(sessions_database):
+def test_execute_sql_w_float_bindings_transfinite(sessions_database):
 
     # Find -inf
     _check_sql_results(
@@ -1842,7 +1846,7 @@ def _test_execute_sql_w_float_bindings_transfinite(sessions_database):
     )
 
 
-def _test_execute_sql_w_bytes_bindings(sessions_database):
+def test_execute_sql_w_bytes_bindings(sessions_database):
     _bind_test_helper(
         sessions_database,
         spanner_v1.TypeCode.BYTES,
@@ -1851,7 +1855,7 @@ def _test_execute_sql_w_bytes_bindings(sessions_database):
     )
 
 
-def _test_execute_sql_w_timestamp_bindings(sessions_database):
+def test_execute_sql_w_timestamp_bindings(sessions_database):
 
     timestamp_1 = datetime_helpers.DatetimeWithNanoseconds(
         1989, 1, 17, 17, 59, 12, nanosecond=345612789
@@ -1876,12 +1880,12 @@ def _test_execute_sql_w_timestamp_bindings(sessions_database):
     )
 
 
-def _test_execute_sql_w_date_bindings(sessions_database):
+def test_execute_sql_w_date_bindings(sessions_database):
     dates = [SOME_DATE, SOME_DATE + datetime.timedelta(days=1)]
     _bind_test_helper(sessions_database, spanner_v1.TypeCode.DATE, SOME_DATE, dates)
 
 
-def _test_execute_sql_w_numeric_bindings(not_emulator, sessions_database):
+def test_execute_sql_w_numeric_bindings(not_emulator, sessions_database):
     _bind_test_helper(
         sessions_database,
         spanner_v1.TypeCode.NUMERIC,
@@ -1890,13 +1894,13 @@ def _test_execute_sql_w_numeric_bindings(not_emulator, sessions_database):
     )
 
 
-def _test_execute_sql_w_json_bindings(not_emulator, sessions_database):
+def test_execute_sql_w_json_bindings(not_emulator, sessions_database):
     _bind_test_helper(
         sessions_database, spanner_v1.TypeCode.JSON, JSON_1, [JSON_1, JSON_2],
     )
 
 
-def _test_execute_sql_w_query_param_struct(sessions_database):
+def test_execute_sql_w_query_param_struct(sessions_database):
     name = "Phred"
     count = 123
     size = 23.456
@@ -2101,7 +2105,7 @@ def _test_execute_sql_w_query_param_struct(sessions_database):
     )
 
 
-def _test_execute_sql_returning_transfinite_floats(sessions_database):
+def test_execute_sql_returning_transfinite_floats(sessions_database):
 
     with sessions_database.snapshot(multi_use=True) as snapshot:
         # Query returning -inf, +inf, NaN as column values
@@ -2138,7 +2142,7 @@ def _test_execute_sql_returning_transfinite_floats(sessions_database):
         assert math.isnan(float_array[2])
 
 
-def _test_partition_query(sessions_database):
+def test_partition_query(sessions_database):
     row_count = 40
     sql = f"SELECT * FROM {_sample_data.TABLE}"
     committed = _set_up_table(sessions_database, row_count)

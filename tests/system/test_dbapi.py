@@ -64,7 +64,7 @@ def dbapi_database(raw_database):
     raw_database.run_in_transaction(clear_table)
 
 
-def _test_commit(shared_instance, dbapi_database):
+def test_commit(shared_instance, dbapi_database):
     """Test committing a transaction with several statements."""
     want_row = (
         1,
@@ -110,7 +110,7 @@ WHERE email = 'test.email@domen.ru'
     conn.close()
 
 
-def _test_rollback(shared_instance, dbapi_database):
+def test_rollback(shared_instance, dbapi_database):
     """Test rollbacking a transaction with several statements."""
     want_row = (2, "first-name", "last-name", "test.email@domen.ru")
     # connect to the test database
@@ -153,7 +153,7 @@ WHERE email = 'test.email@domen.ru'
     conn.close()
 
 
-def _test_autocommit_mode_change(shared_instance, dbapi_database):
+def test_autocommit_mode_change(shared_instance, dbapi_database):
     """Test auto committing a transaction on `autocommit` mode change."""
     want_row = (
         2,
@@ -190,7 +190,7 @@ WHERE first_name = 'first-name'
     conn.close()
 
 
-def _test_rollback_on_connection_closing(shared_instance, dbapi_database):
+def test_rollback_on_connection_closing(shared_instance, dbapi_database):
     """
     When closing a connection all the pending transactions
     must be rollbacked. Testing if it's working this way.
@@ -232,7 +232,7 @@ WHERE first_name = 'first-name'
     conn.close()
 
 
-def _test_results_checksum(shared_instance, dbapi_database):
+def test_results_checksum(shared_instance, dbapi_database):
     """Test that results checksum is calculated properly."""
     conn = Connection(shared_instance, dbapi_database)
     cursor = conn.cursor()
@@ -261,7 +261,7 @@ VALUES
     assert cursor._checksum.checksum.digest() == checksum.digest()
 
 
-def _test_execute_many(shared_instance, dbapi_database):
+def test_execute_many(shared_instance, dbapi_database):
     # connect to the test database
     conn = Connection(shared_instance, dbapi_database)
     cursor = conn.cursor()
@@ -303,7 +303,7 @@ SELECT * FROM contacts WHERE contact_id = 1
     conn.close()
 
 
-def _test_DDL_autocommit(shared_instance, dbapi_database):
+def test_DDL_autocommit(shared_instance, dbapi_database):
     """Check that DDLs in autocommit mode are immediately executed."""
     conn = Connection(shared_instance, dbapi_database)
     conn.autocommit = True
@@ -328,7 +328,7 @@ def _test_DDL_autocommit(shared_instance, dbapi_database):
     conn.commit()
 
 
-def _test_DDL_commit(shared_instance, dbapi_database):
+def test_DDL_commit(shared_instance, dbapi_database):
     """Check that DDLs in commit mode are executed on calling `commit()`."""
     conn = Connection(shared_instance, dbapi_database)
     cur = conn.cursor()
@@ -353,14 +353,14 @@ def _test_DDL_commit(shared_instance, dbapi_database):
     conn.commit()
 
 
-def _test_ping(shared_instance, dbapi_database):
+def test_ping(shared_instance, dbapi_database):
     """Check connection validation method."""
     conn = Connection(shared_instance, dbapi_database)
     conn.validate()
     conn.close()
 
 
-def _test_user_agent(shared_instance, dbapi_database):
+def test_user_agent(shared_instance, dbapi_database):
     """Check that DB API uses an appropriate user agent."""
     conn = connect(shared_instance.name, dbapi_database.name)
     assert (

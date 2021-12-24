@@ -106,6 +106,23 @@ class Backup(proto.Message):
         encryption_info (google.cloud.spanner_admin_database_v1.types.EncryptionInfo):
             Output only. The encryption information for
             the backup.
+        referencing_backups (Sequence[str]):
+            Output only. The names of the destination backups being
+            created by copying this source backup. The backup names are
+            of the form
+            ``projects/<project>/instances/<instance>/backups/<backup>``.
+            Referencing backups may exist in different instances. The
+            existence of any referencing backup prevents the backup from
+            being deleted. When the copy operation is done (either
+            successfully completed or cancelled or the destination
+            backup is deleted), the reference to the backup is removed.
+        max_expire_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. The max allowed expiration time of the backup,
+            with microseconds granularity. A backup's expiration time
+            can be configured in multiple APIs: CreateBackup,
+            UpdateBackup, CopyBackup. When updating or copying an
+            existing backup, the expiration time specified must be less
+            than ``Backup.max_expire_time``.
     """
 
     class State(proto.Enum):
@@ -126,6 +143,10 @@ class Backup(proto.Message):
     referencing_databases = proto.RepeatedField(proto.STRING, number=7,)
     encryption_info = proto.Field(
         proto.MESSAGE, number=8, message=common.EncryptionInfo,
+    )
+    referencing_backups = proto.RepeatedField(proto.STRING, number=11,)
+    max_expire_time = proto.Field(
+        proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
     )
 
 

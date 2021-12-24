@@ -127,7 +127,7 @@ def test_update_backup(capsys, instance_id):
     assert BACKUP_ID in out
 
 
-@pytest.mark.dependency(depends=["create_backup"])
+@pytest.mark.dependency(depends=["create_backup","copy_backup"])
 def test_delete_backup(capsys, instance_id):
     backup_sample.delete_backup(instance_id, BACKUP_ID)
     out, _ = capsys.readouterr()
@@ -158,7 +158,7 @@ def test_create_database_with_retention_period(capsys, sample_instance):
     database = sample_instance.database(RETENTION_DATABASE_ID)
     database.drop()
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="copy_backup",depends=["create_backup"])
 def test_copy_backup(capsys, instance_id, sample_database):
     
     backup_sample.copy_backup(
@@ -171,7 +171,7 @@ def test_copy_backup(capsys, instance_id, sample_database):
     assert COPY_BACKUP_ID in out
 
 
-@pytest.mark.dependency()
+@pytest.mark.dependency(name="copy_backup_with_encryption_key",depends=["create_backup_with_encryption_key"])
 def test_copy_backup_with_encryption_key(
     capsys, instance_id, sample_database, kms_key_name,
 ):

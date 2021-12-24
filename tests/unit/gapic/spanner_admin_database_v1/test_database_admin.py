@@ -3067,6 +3067,7 @@ def test_get_backup(transport: str = "grpc", request_type=backup.GetBackupReques
             size_bytes=1089,
             state=backup.Backup.State.CREATING,
             referencing_databases=["referencing_databases_value"],
+            referencing_backups=["referencing_backups_value"],
         )
         response = client.get_backup(request)
 
@@ -3082,6 +3083,7 @@ def test_get_backup(transport: str = "grpc", request_type=backup.GetBackupReques
     assert response.size_bytes == 1089
     assert response.state == backup.Backup.State.CREATING
     assert response.referencing_databases == ["referencing_databases_value"]
+    assert response.referencing_backups == ["referencing_backups_value"]
 
 
 def test_get_backup_from_dict():
@@ -3125,6 +3127,7 @@ async def test_get_backup_async(
                 size_bytes=1089,
                 state=backup.Backup.State.CREATING,
                 referencing_databases=["referencing_databases_value"],
+                referencing_backups=["referencing_backups_value"],
             )
         )
         response = await client.get_backup(request)
@@ -3141,6 +3144,7 @@ async def test_get_backup_async(
     assert response.size_bytes == 1089
     assert response.state == backup.Backup.State.CREATING
     assert response.referencing_databases == ["referencing_databases_value"]
+    assert response.referencing_backups == ["referencing_backups_value"]
 
 
 @pytest.mark.asyncio
@@ -3285,6 +3289,7 @@ def test_update_backup(
             size_bytes=1089,
             state=gsad_backup.Backup.State.CREATING,
             referencing_databases=["referencing_databases_value"],
+            referencing_backups=["referencing_backups_value"],
         )
         response = client.update_backup(request)
 
@@ -3300,6 +3305,7 @@ def test_update_backup(
     assert response.size_bytes == 1089
     assert response.state == gsad_backup.Backup.State.CREATING
     assert response.referencing_databases == ["referencing_databases_value"]
+    assert response.referencing_backups == ["referencing_backups_value"]
 
 
 def test_update_backup_from_dict():
@@ -3343,6 +3349,7 @@ async def test_update_backup_async(
                 size_bytes=1089,
                 state=gsad_backup.Backup.State.CREATING,
                 referencing_databases=["referencing_databases_value"],
+                referencing_backups=["referencing_backups_value"],
             )
         )
         response = await client.update_backup(request)
@@ -3359,6 +3366,7 @@ async def test_update_backup_async(
     assert response.size_bytes == 1089
     assert response.state == gsad_backup.Backup.State.CREATING
     assert response.referencing_databases == ["referencing_databases_value"]
+    assert response.referencing_backups == ["referencing_backups_value"]
 
 
 @pytest.mark.asyncio

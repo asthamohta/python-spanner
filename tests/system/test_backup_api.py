@@ -240,7 +240,7 @@ def test_backup_and_copy_backup_workflow(
     assert not copy_backup.exists()
 
 
-def _test_backup_create_w_version_time_dflt_to_create_time(
+def test_backup_create_w_version_time_dflt_to_create_time(
     shared_instance, shared_database, backups_to_delete, databases_to_delete,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -271,7 +271,7 @@ def _test_backup_create_w_version_time_dflt_to_create_time(
     assert not backup.exists()
 
 
-def _test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
+def test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
     backup_id = _helpers.unique_id("backup_id", separator="_")
     expire_time = datetime.datetime.now(datetime.timezone.utc)
 
@@ -284,7 +284,7 @@ def _test_backup_create_w_invalid_expire_time(shared_instance, shared_database):
         op.result()  # blocks indefinitely
 
 
-def _test_backup_create_w_invalid_version_time_past(
+def test_backup_create_w_invalid_version_time_past(
     shared_instance, shared_database,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -307,7 +307,7 @@ def _test_backup_create_w_invalid_version_time_past(
         op.result()  # blocks indefinitely
 
 
-def _test_backup_create_w_invalid_version_time_future(
+def test_backup_create_w_invalid_version_time_future(
     shared_instance, shared_database,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -330,7 +330,7 @@ def _test_backup_create_w_invalid_version_time_future(
         op.result()  # blocks indefinitely
 
 
-def _test_copy_backup_create_w_invalid_expire_time(
+def test_copy_backup_create_w_invalid_expire_time(
     shared_instance, shared_database, backups_to_delete,
 ):
     backup_id = _helpers.unique_id("backup_id", separator="_")
@@ -360,7 +360,7 @@ def _test_copy_backup_create_w_invalid_expire_time(
     source_backup.delete()
 
 
-def _test_database_restore_to_diff_instance(
+def test_database_restore_to_diff_instance(
     shared_instance,
     shared_database,
     backups_to_delete,
@@ -392,7 +392,7 @@ def _test_database_restore_to_diff_instance(
     assert not backup.exists()
 
 
-def _test_multi_create_cancel_update_error_restore_errors(
+def test_multi_create_cancel_update_error_restore_errors(
     shared_instance,
     shared_database,
     second_database,
@@ -453,7 +453,7 @@ def _test_multi_create_cancel_update_error_restore_errors(
             new_db.restore(source=backup1)
 
 
-def _test_instance_list_backups(
+def test_instance_list_backups(
     shared_instance,
     shared_database,
     second_database,

@@ -18,17 +18,17 @@ from google.api_core import exceptions
 from google.cloud import spanner_v1
 
 
-def _test_table_exists(shared_database):
+def test_table_exists(shared_database):
     table = shared_database.table("all_types")
     assert table.exists()
 
 
-def _test_table_exists_not_found(shared_database):
+def test_table_exists_not_found(shared_database):
     table = shared_database.table("table_does_not_exist")
     assert not table.exists()
 
 
-def _test_db_list_tables(shared_database):
+def test_db_list_tables(shared_database):
     tables = shared_database.list_tables()
     table_ids = set(table.table_id for table in tables)
     assert "contacts" in table_ids
@@ -36,20 +36,20 @@ def _test_db_list_tables(shared_database):
     assert "all_types" in table_ids
 
 
-def _test_db_list_tables_reload(shared_database):
+def test_db_list_tables_reload(shared_database):
     for table in shared_database.list_tables():
         assert table.exists()
         schema = table.schema
         assert isinstance(schema, list)
 
 
-def _test_table_reload_miss(shared_database):
+def test_table_reload_miss(shared_database):
     table = shared_database.table("table_does_not_exist")
     with pytest.raises(exceptions.NotFound):
         table.reload()
 
 
-def _test_table_schema(shared_database):
+def test_table_schema(shared_database):
     table = shared_database.table("all_types")
     schema = table.schema
     expected = [

@@ -59,17 +59,17 @@ def _verify_two_columns(db, table_desc):
         assert row[1] == expected
 
 
-def _test_four_kay(streaming_database):
+def test_four_kay(streaming_database):
     _verify_one_column(streaming_database, streaming_utils.FOUR_KAY)
 
 
-def _test_forty_kay(streaming_database):
+def test_forty_kay(streaming_database):
     _verify_one_column(streaming_database, streaming_utils.FORTY_KAY)
 
 
-def _test_four_hundred_kay(streaming_database):
+def test_four_hundred_kay(streaming_database):
     _verify_one_column(streaming_database, streaming_utils.FOUR_HUNDRED_KAY)
 
 
-def _test_four_meg(streaming_database):
+def test_four_meg(streaming_database):
     _verify_two_columns(streaming_database, streaming_utils.FOUR_MEG)

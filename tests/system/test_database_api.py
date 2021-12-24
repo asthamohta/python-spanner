@@ -69,7 +69,7 @@ def test_create_database(shared_instance, databases_to_delete):
     assert temp_db.name in database_ids
 
 
-def _test_create_database_pitr_invalid_retention_period(
+def test_create_database_pitr_invalid_retention_period(
     not_emulator,  # PITR-lite features are not supported by the emulator
     shared_instance,
 ):
@@ -87,7 +87,7 @@ def _test_create_database_pitr_invalid_retention_period(
         temp_db.create()
 
 
-def _test_create_database_pitr_success(
+def test_create_database_pitr_success(
     not_emulator,  # PITR-lite features are not supported by the emulator
     shared_instance,
     databases_to_delete,
@@ -123,7 +123,7 @@ def _test_create_database_pitr_success(
             assert result[0] == retention_period
 
 
-def _test_create_database_with_default_leader_success(
+def test_create_database_with_default_leader_success(
     not_emulator,  # Default leader setting not supported by the emulator
     multiregion_instance,
     databases_to_delete,
@@ -159,7 +159,7 @@ def _test_create_database_with_default_leader_success(
             assert result[0] == default_leader
 
 
-def _test_table_not_found(shared_instance):
+def test_table_not_found(shared_instance):
     temp_db_id = _helpers.unique_id("tbl_not_found", separator="_")
 
     correct_table = "MyTable"
@@ -180,7 +180,7 @@ def _test_table_not_found(shared_instance):
         temp_db.create()
 
 
-def _test_update_ddl_w_operation_id(shared_instance, databases_to_delete):
+def test_update_ddl_w_operation_id(shared_instance, databases_to_delete):
     # We used to have:
     # @pytest.mark.skip(
     #    reason="'Database.update_ddl' has a flaky timeout.  See: "
@@ -206,7 +206,7 @@ def _test_update_ddl_w_operation_id(shared_instance, databases_to_delete):
     assert len(temp_db.ddl_statements) == len(_helpers.DDL_STATEMENTS)
 
 
-def _test_update_ddl_w_pitr_invalid(
+def test_update_ddl_w_pitr_invalid(
     not_emulator, shared_instance, databases_to_delete,
 ):
     pool = spanner_v1.BurstyPool(labels={"testcase": "update_database_ddl_pitr"})
@@ -228,7 +228,7 @@ def _test_update_ddl_w_pitr_invalid(
         temp_db.update_ddl(ddl_statements)
 
 
-def _test_update_ddl_w_pitr_success(
+def test_update_ddl_w_pitr_success(
     not_emulator, shared_instance, databases_to_delete,
 ):
     pool = spanner_v1.BurstyPool(labels={"testcase": "update_database_ddl_pitr"})
@@ -254,7 +254,7 @@ def _test_update_ddl_w_pitr_success(
     assert len(temp_db.ddl_statements) == len(ddl_statements)
 
 
-def _test_update_ddl_w_default_leader_success(
+def test_update_ddl_w_default_leader_success(
     not_emulator, multiregion_instance, databases_to_delete,
 ):
     pool = spanner_v1.BurstyPool(
@@ -283,7 +283,7 @@ def _test_update_ddl_w_default_leader_success(
     assert len(temp_db.ddl_statements) == len(ddl_statements)
 
 
-def _test_db_batch_insert_then_db_snapshot_read(shared_database):
+def test_db_batch_insert_then_db_snapshot_read(shared_database):
     _helpers.retry_has_all_dll(shared_database.reload)()
     sd = _sample_data
 
@@ -297,7 +297,7 @@ def _test_db_batch_insert_then_db_snapshot_read(shared_database):
     sd._check_rows_data(from_snap)
 
 
-def _test_db_run_in_transaction_then_snapshot_execute_sql(shared_database):
+def test_db_run_in_transaction_then_snapshot_execute_sql(shared_database):
     _helpers.retry_has_all_dll(shared_database.reload)()
     sd = _sample_data
 
@@ -318,7 +318,7 @@ def _test_db_run_in_transaction_then_snapshot_execute_sql(shared_database):
     sd._check_rows_data(rows)
 
 
-def _test_db_run_in_transaction_twice(shared_database):
+def test_db_run_in_transaction_twice(shared_database):
     _helpers.retry_has_all_dll(shared_database.reload)()
     sd = _sample_data
 
@@ -336,7 +336,7 @@ def _test_db_run_in_transaction_twice(shared_database):
     sd._check_rows_data(rows)
 
 
-def _test_db_run_in_transaction_twice_4181(shared_database):
+def test_db_run_in_transaction_twice_4181(shared_database):
     # See https://github.com/googleapis/google-cloud-python/issues/4181
     _helpers.retry_has_all_dll(shared_database.reload)()
     sd = _sample_data
