@@ -171,17 +171,3 @@ def test_copy_backup(capsys, instance_id, sample_database):
     assert COPY_BACKUP_ID in out
 
 
-@pytest.mark.dependency(name="copy_backup_with_encryption_key",depends=["create_backup_with_encryption_key"])
-def test_copy_backup_with_encryption_key(
-    capsys, instance_id, sample_database, kms_key_name,
-):
-    backup_sample.copy_backup_with_encryption_key(
-        instance_id,
-        sample_database.database_id,
-        CMEK_COPY_BACKUP_ID,
-        CMEK_BACKUP_ID,
-        kms_key_name,
-    )
-    out, _ = capsys.readouterr()
-    assert CMEK_COPY_BACKUP_ID in out
-    assert kms_key_name in out

@@ -417,48 +417,6 @@ def copy_backup(instance_id, database_id, backup_id, source_backup_id):
 
 # [END spanner_copy_backup]
 
-# [START spanner_copy_backup_with_encryption_key]
-def copy_backup_with_encryption_key(instance_id, database_id, backup_id, source_backup_id, kms_key_name):
-    """Creates a backup for a database using a Customer Managed Encryption Key (CMEK)."""
-    from google.cloud.spanner_admin_database_v1 import CopyBackupEncryptionConfig
-
-    spanner_client = spanner.Client(client_options={"api_endpoint": "staging-wrenchworks.sandbox.googleapis.com"})
-    instance = spanner_client.instance(instance_id)
-    database = instance.database(database_id)
-
-    # Create a source backup and wait for create backup operation to complete.
-    expire_time = datetime.utcnow() + timedelta(days=14)
-    source_backup = instance.backup(source_backup_id, database=database, expire_time=expire_time)
-    operation = source_backup.create()
-    operation.result(1200)
-
-    # Create a copy backup and wait for backup operation to complete.
-    encryption_config = {
-        'encryption_type': CopyBackupEncryptionConfig.EncryptionType.CUSTOMER_MANAGED_ENCRYPTION,
-        'kms_key_name': kms_key_name,
-    }
-    copy_backup = instance.copy_backup(backup_id, source_backup=source_backup.name, expire_time=expire_time, encryption_config=encryption_config)
-    operation = copy_backup.create()
-
-    # Wait for copy backup operation to complete.
-    operation.result(1200)
-
-    # Verify that the copy backup is ready.
-    copy_backup.reload()
-    assert copy_backup.is_ready() is True
-
-    # Get the name, create time and backup size.
-    copy_backup.reload()
-    print(
-        "Backup {} of size {} bytes was created at {} with using encryption key {}.".format(
-            copy_backup.name, copy_backup.size_bytes, copy_backup.create_time, kms_key_name
-        )
-    )
-
-
-# [END spanner_copy_backup_with_encryption_key]
-
-
 if __name__ == "__main__":  # noqa: C901
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
