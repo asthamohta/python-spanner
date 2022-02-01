@@ -14,25 +14,21 @@
 # limitations under the License.
 #
 from collections import OrderedDict
+from distutils import util
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Callable, Dict, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib
-from google.api_core import exceptions as core_exceptions
-from google.api_core import gapic_v1
-from google.api_core import retry as retries
+from google.api_core import client_options as client_options_lib  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
 from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -85,13 +81,11 @@ class DatabaseAdminClientMeta(type):
 
 class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
     """Cloud Spanner Database Admin API
-
-    The Cloud Spanner Database Admin API can be used to:
-
-    -  create, drop, and list databases
-    -  update the schema of pre-existing databases
-    -  create, delete and list backups for a database
-    -  restore a database from an existing backup
+    The Cloud Spanner Database Admin API can be used to create,
+    drop, and list databases. It also enables updating the schema of
+    pre-existing databases. It can be also used to create, delete
+    and list backups for a database and to restore from an existing
+    backup.
     """
 
     @staticmethod
@@ -327,73 +321,6 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
 
-    @classmethod
-    def get_mtls_endpoint_and_cert_source(
-        cls, client_options: Optional[client_options_lib.ClientOptions] = None
-    ):
-        """Return the API endpoint and client cert source for mutual TLS.
-
-        The client cert source is determined in the following order:
-        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
-        client cert source is None.
-        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
-        default client cert source exists, use the default one; otherwise the client cert
-        source is None.
-
-        The API endpoint is determined in the following order:
-        (1) if `client_options.api_endpoint` if provided, use the provided one.
-        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
-        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
-        use the default API endpoint.
-
-        More details can be found at https://google.aip.dev/auth/4114.
-
-        Args:
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
-                client. Only the `api_endpoint` and `client_cert_source` properties may be used
-                in this method.
-
-        Returns:
-            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
-                client cert source to use.
-
-        Raises:
-            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
-        """
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
-        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-        if use_client_cert not in ("true", "false"):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        if use_mtls_endpoint not in ("auto", "never", "always"):
-            raise MutualTLSChannelError(
-                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-            )
-
-        # Figure out the client cert source to use.
-        client_cert_source = None
-        if use_client_cert == "true":
-            if client_options.client_cert_source:
-                client_cert_source = client_options.client_cert_source
-            elif mtls.has_default_client_cert_source():
-                client_cert_source = mtls.default_client_cert_source()
-
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        elif use_mtls_endpoint == "always" or (
-            use_mtls_endpoint == "auto" and client_cert_source
-        ):
-            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
-        else:
-            api_endpoint = cls.DEFAULT_ENDPOINT
-
-        return api_endpoint, client_cert_source
-
     def __init__(
         self,
         *,
@@ -444,22 +371,50 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
 
-        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
-            client_options
+        # Create SSL credentials for mutual TLS if needed.
+        use_client_cert = bool(
+            util.strtobool(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"))
         )
 
-        api_key_value = getattr(client_options, "api_key", None)
-        if api_key_value and credentials:
-            raise ValueError(
-                "client_options.api_key and credentials are mutually exclusive"
-            )
+        client_cert_source_func = None
+        is_mtls = False
+        if use_client_cert:
+            if client_options.client_cert_source:
+                is_mtls = True
+                client_cert_source_func = client_options.client_cert_source
+            else:
+                is_mtls = mtls.has_default_client_cert_source()
+                if is_mtls:
+                    client_cert_source_func = mtls.default_client_cert_source()
+                else:
+                    client_cert_source_func = None
+
+        # Figure out which api endpoint to use.
+        if client_options.api_endpoint is not None:
+            api_endpoint = client_options.api_endpoint
+        else:
+            use_mtls_env = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
+            if use_mtls_env == "never":
+                api_endpoint = self.DEFAULT_ENDPOINT
+            elif use_mtls_env == "always":
+                api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+            elif use_mtls_env == "auto":
+                if is_mtls:
+                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
+                else:
+                    api_endpoint = self.DEFAULT_ENDPOINT
+            else:
+                raise MutualTLSChannelError(
+                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
+                    "values: never, auto, always"
+                )
 
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, DatabaseAdminTransport):
             # transport is a DatabaseAdminTransport instance.
-            if credentials or client_options.credentials_file or api_key_value:
+            if credentials or client_options.credentials_file:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
@@ -471,15 +426,6 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 )
             self._transport = transport
         else:
-            import google.auth._default  # type: ignore
-
-            if api_key_value and hasattr(
-                google.auth._default, "get_api_key_credentials"
-            ):
-                credentials = google.auth._default.get_api_key_credentials(
-                    api_key_value
-                )
-
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
@@ -489,15 +435,18 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 client_cert_source_for_mtls=client_cert_source_func,
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
-                always_use_jwt_access=True,
+                always_use_jwt_access=(
+                    Transport == type(self).get_transport_class("grpc")
+                    or Transport == type(self).get_transport_class("grpc_asyncio")
+                ),
             )
 
     def list_databases(
         self,
-        request: Union[spanner_database_admin.ListDatabasesRequest, dict] = None,
+        request: spanner_database_admin.ListDatabasesRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatabasesPager:
@@ -524,7 +473,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListDatabasesRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.ListDatabasesRequest):
                 The request object. The request for
                 [ListDatabases][google.spanner.admin.database.v1.DatabaseAdmin.ListDatabases].
             parent (str):
@@ -595,11 +544,11 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def create_database(
         self,
-        request: Union[spanner_database_admin.CreateDatabaseRequest, dict] = None,
+        request: spanner_database_admin.CreateDatabaseRequest = None,
         *,
         parent: str = None,
         create_statement: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -640,7 +589,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CreateDatabaseRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.CreateDatabaseRequest):
                 The request object. The request for
                 [CreateDatabase][google.spanner.admin.database.v1.DatabaseAdmin.CreateDatabase].
             parent (str):
@@ -727,10 +676,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def get_database(
         self,
-        request: Union[spanner_database_admin.GetDatabaseRequest, dict] = None,
+        request: spanner_database_admin.GetDatabaseRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> spanner_database_admin.Database:
@@ -756,7 +705,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetDatabaseRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.GetDatabaseRequest):
                 The request object. The request for
                 [GetDatabase][google.spanner.admin.database.v1.DatabaseAdmin.GetDatabase].
             name (str):
@@ -816,11 +765,11 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def update_database_ddl(
         self,
-        request: Union[spanner_database_admin.UpdateDatabaseDdlRequest, dict] = None,
+        request: spanner_database_admin.UpdateDatabaseDdlRequest = None,
         *,
         database: str = None,
         statements: Sequence[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -860,7 +809,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.UpdateDatabaseDdlRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.UpdateDatabaseDdlRequest):
                 The request object. Enqueues the given DDL statements to
                 be applied, in order but not necessarily all at once, to
                 the database schema at some point (or points) in the
@@ -966,17 +915,16 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def drop_database(
         self,
-        request: Union[spanner_database_admin.DropDatabaseRequest, dict] = None,
+        request: spanner_database_admin.DropDatabaseRequest = None,
         *,
         database: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Drops (aka deletes) a Cloud Spanner database. Completed backups
         for the database will be retained according to their
-        ``expire_time``. Note: Cloud Spanner might continue to accept
-        requests for a few seconds after the database has been deleted.
+        ``expire_time``.
 
 
         .. code-block:: python
@@ -996,7 +944,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 client.drop_database(request=request)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.DropDatabaseRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.DropDatabaseRequest):
                 The request object. The request for
                 [DropDatabase][google.spanner.admin.database.v1.DatabaseAdmin.DropDatabase].
             database (str):
@@ -1048,10 +996,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def get_database_ddl(
         self,
-        request: Union[spanner_database_admin.GetDatabaseDdlRequest, dict] = None,
+        request: spanner_database_admin.GetDatabaseDdlRequest = None,
         *,
         database: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> spanner_database_admin.GetDatabaseDdlResponse:
@@ -1081,7 +1029,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetDatabaseDdlRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.GetDatabaseDdlRequest):
                 The request object. The request for
                 [GetDatabaseDdl][google.spanner.admin.database.v1.DatabaseAdmin.GetDatabaseDdl].
             database (str):
@@ -1143,10 +1091,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def set_iam_policy(
         self,
-        request: Union[iam_policy_pb2.SetIamPolicyRequest, dict] = None,
+        request: iam_policy_pb2.SetIamPolicyRequest = None,
         *,
         resource: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
@@ -1181,7 +1129,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.SetIamPolicyRequest, dict]):
+            request (google.iam.v1.iam_policy_pb2.SetIamPolicyRequest):
                 The request object. Request message for `SetIamPolicy`
                 method.
             resource (str):
@@ -1296,10 +1244,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def get_iam_policy(
         self,
-        request: Union[iam_policy_pb2.GetIamPolicyRequest, dict] = None,
+        request: iam_policy_pb2.GetIamPolicyRequest = None,
         *,
         resource: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
@@ -1335,7 +1283,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.GetIamPolicyRequest, dict]):
+            request (google.iam.v1.iam_policy_pb2.GetIamPolicyRequest):
                 The request object. Request message for `GetIamPolicy`
                 method.
             resource (str):
@@ -1450,11 +1398,11 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def test_iam_permissions(
         self,
-        request: Union[iam_policy_pb2.TestIamPermissionsRequest, dict] = None,
+        request: iam_policy_pb2.TestIamPermissionsRequest = None,
         *,
         resource: str = None,
         permissions: Sequence[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
@@ -1491,7 +1439,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.TestIamPermissionsRequest, dict]):
+            request (google.iam.v1.iam_policy_pb2.TestIamPermissionsRequest):
                 The request object. Request message for
                 `TestIamPermissions` method.
             resource (str):
@@ -1562,12 +1510,12 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def create_backup(
         self,
-        request: Union[gsad_backup.CreateBackupRequest, dict] = None,
+        request: gsad_backup.CreateBackupRequest = None,
         *,
         parent: str = None,
         backup: gsad_backup.Backup = None,
         backup_id: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -1611,7 +1559,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CreateBackupRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.CreateBackupRequest):
                 The request object. The request for
                 [CreateBackup][google.spanner.admin.database.v1.DatabaseAdmin.CreateBackup].
             parent (str):
@@ -1706,13 +1654,13 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def copy_backup(
         self,
-        request: Union[backup.CopyBackupRequest, dict] = None,
+        request: backup.CopyBackupRequest = None,
         *,
         parent: str = None,
         backup_id: str = None,
         source_backup: str = None,
         expire_time: timestamp_pb2.Timestamp = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -1730,34 +1678,8 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
         copying and delete the backup. Concurrent CopyBackup requests
         can run on the same source backup.
 
-
-        .. code-block:: python
-
-            from google.cloud import spanner_admin_database_v1
-
-            def sample_copy_backup():
-                # Create a client
-                client = spanner_admin_database_v1.DatabaseAdminClient()
-
-                # Initialize request argument(s)
-                request = spanner_admin_database_v1.CopyBackupRequest(
-                    parent="parent_value",
-                    backup_id="backup_id_value",
-                    source_backup="source_backup_value",
-                )
-
-                # Make the request
-                operation = client.copy_backup(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CopyBackupRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.CopyBackupRequest):
                 The request object. The request for
                 [CopyBackup][google.spanner.admin.database.v1.DatabaseAdmin.CopyBackup].
             parent (str):
@@ -1816,7 +1738,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
+        # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, backup_id, source_backup, expire_time])
         if request is not None and has_flattened_params:
@@ -1868,10 +1790,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def get_backup(
         self,
-        request: Union[backup.GetBackupRequest, dict] = None,
+        request: backup.GetBackupRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> backup.Backup:
@@ -1899,7 +1821,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetBackupRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.GetBackupRequest):
                 The request object. The request for
                 [GetBackup][google.spanner.admin.database.v1.DatabaseAdmin.GetBackup].
             name (str):
@@ -1958,11 +1880,11 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def update_backup(
         self,
-        request: Union[gsad_backup.UpdateBackupRequest, dict] = None,
+        request: gsad_backup.UpdateBackupRequest = None,
         *,
         backup: gsad_backup.Backup = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gsad_backup.Backup:
@@ -1989,7 +1911,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.UpdateBackupRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.UpdateBackupRequest):
                 The request object. The request for
                 [UpdateBackup][google.spanner.admin.database.v1.DatabaseAdmin.UpdateBackup].
             backup (google.cloud.spanner_admin_database_v1.types.Backup):
@@ -2068,10 +1990,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def delete_backup(
         self,
-        request: Union[backup.DeleteBackupRequest, dict] = None,
+        request: backup.DeleteBackupRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -2096,7 +2018,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 client.delete_backup(request=request)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.DeleteBackupRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.DeleteBackupRequest):
                 The request object. The request for
                 [DeleteBackup][google.spanner.admin.database.v1.DatabaseAdmin.DeleteBackup].
             name (str):
@@ -2151,10 +2073,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def list_backups(
         self,
-        request: Union[backup.ListBackupsRequest, dict] = None,
+        request: backup.ListBackupsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBackupsPager:
@@ -2184,7 +2106,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListBackupsRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.ListBackupsRequest):
                 The request object. The request for
                 [ListBackups][google.spanner.admin.database.v1.DatabaseAdmin.ListBackups].
             parent (str):
@@ -2254,12 +2176,12 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def restore_database(
         self,
-        request: Union[spanner_database_admin.RestoreDatabaseRequest, dict] = None,
+        request: spanner_database_admin.RestoreDatabaseRequest = None,
         *,
         parent: str = None,
         database_id: str = None,
         backup: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
@@ -2310,7 +2232,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.RestoreDatabaseRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.RestoreDatabaseRequest):
                 The request object. The request for
                 [RestoreDatabase][google.spanner.admin.database.v1.DatabaseAdmin.RestoreDatabase].
             parent (str):
@@ -2407,12 +2329,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def list_database_operations(
         self,
-        request: Union[
-            spanner_database_admin.ListDatabaseOperationsRequest, dict
-        ] = None,
+        request: spanner_database_admin.ListDatabaseOperationsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatabaseOperationsPager:
@@ -2449,7 +2369,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListDatabaseOperationsRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.ListDatabaseOperationsRequest):
                 The request object. The request for
                 [ListDatabaseOperations][google.spanner.admin.database.v1.DatabaseAdmin.ListDatabaseOperations].
             parent (str):
@@ -2522,10 +2442,10 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
     def list_backup_operations(
         self,
-        request: Union[backup.ListBackupOperationsRequest, dict] = None,
+        request: backup.ListBackupOperationsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBackupOperationsPager:
@@ -2564,7 +2484,7 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListBackupOperationsRequest, dict]):
+            request (google.cloud.spanner_admin_database_v1.types.ListBackupOperationsRequest):
                 The request object. The request for
                 [ListBackupOperations][google.spanner.admin.database.v1.DatabaseAdmin.ListBackupOperations].
             parent (str):
@@ -2632,19 +2552,6 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
 
         # Done; return the response.
         return response
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        """Releases underlying transport's resources.
-
-        .. warning::
-            ONLY use as a context manager if the transport is NOT shared
-            with other clients! Exiting the with block will CLOSE the transport
-            and may cause errors in other clients!
-        """
-        self.transport.close()
 
 
 try:

@@ -45,7 +45,6 @@ __protobuf__ = proto.module(
 
 class Backup(proto.Message):
     r"""A backup of a Cloud Spanner database.
-
     Attributes:
         database (str):
             Required for the
@@ -107,9 +106,6 @@ class Backup(proto.Message):
         encryption_info (google.cloud.spanner_admin_database_v1.types.EncryptionInfo):
             Output only. The encryption information for
             the backup.
-        database_dialect (google.cloud.spanner_admin_database_v1.types.DatabaseDialect):
-            Output only. The database dialect information
-            for the backup.
         referencing_backups (Sequence[str]):
             Output only. The names of the destination backups being
             created by copying this source backup. The backup names are
@@ -148,7 +144,6 @@ class Backup(proto.Message):
     encryption_info = proto.Field(
         proto.MESSAGE, number=8, message=common.EncryptionInfo,
     )
-    database_dialect = proto.Field(proto.ENUM, number=10, enum=common.DatabaseDialect,)
     referencing_backups = proto.RepeatedField(proto.STRING, number=11,)
     max_expire_time = proto.Field(
         proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,
@@ -275,7 +270,7 @@ class CopyBackupRequest(proto.Message):
 
 class CopyBackupMetadata(proto.Message):
     r"""Metadata type for the google.longrunning.Operation returned by
-    [CopyBackup][google.spanner.admin.database.v1.DatabaseAdmin.CopyBackup].
+    [CopyBackup][DatabaseAdmin.CopyBackup].
 
     Attributes:
         name (str):
@@ -287,8 +282,7 @@ class CopyBackupMetadata(proto.Message):
             are of the form
             ``projects/<project>/instances/<instance>/backups/<backup>``.
         progress (google.cloud.spanner_admin_database_v1.types.OperationProgress):
-            The progress of the
-            [CopyBackup][google.spanner.admin.database.v1.DatabaseAdmin.CopyBackup]
+            The progress of the [CopyBackup][DatabaseAdmin.CopyBackup]
             operation.
         cancel_time (google.protobuf.timestamp_pb2.Timestamp):
             The time at which cancellation of CopyBackup operation was
@@ -303,8 +297,8 @@ class CopyBackupMetadata(proto.Message):
             successful cancellation, the operation is not deleted;
             instead, it becomes an operation with an
             [Operation.error][google.longrunning.Operation.error] value
-            with a [google.rpc.Status.code][google.rpc.Status.code] of
-            1, corresponding to ``Code.CANCELLED``.
+            with a [google.rpc.Status.code][] of 1, corresponding to
+            ``Code.CANCELLED``.
     """
 
     name = proto.Field(proto.STRING, number=1,)
@@ -612,7 +606,6 @@ class ListBackupOperationsResponse(proto.Message):
 
 class BackupInfo(proto.Message):
     r"""Information about a backup.
-
     Attributes:
         backup (str):
             Name of the backup.
@@ -643,7 +636,6 @@ class BackupInfo(proto.Message):
 
 class CreateBackupEncryptionConfig(proto.Message):
     r"""Encryption configuration for the backup to create.
-
     Attributes:
         encryption_type (google.cloud.spanner_admin_database_v1.types.CreateBackupEncryptionConfig.EncryptionType):
             Required. The encryption type of the backup.
@@ -668,7 +660,6 @@ class CreateBackupEncryptionConfig(proto.Message):
 
 class CopyBackupEncryptionConfig(proto.Message):
     r"""Encryption configuration for the copied backup.
-
     Attributes:
         encryption_type (google.cloud.spanner_admin_database_v1.types.CopyBackupEncryptionConfig.EncryptionType):
             Required. The encryption type of the backup.

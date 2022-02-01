@@ -16,20 +16,15 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core.client_options import ClientOptions
-from google.api_core import exceptions as core_exceptions
-from google.api_core import gapic_v1
-from google.api_core import retry as retries
+import google.api_core.client_options as ClientOptions  # type: ignore
+from google.api_core import exceptions as core_exceptions  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
+from google.api_core import retry as retries  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
-
-try:
-    OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
-except AttributeError:  # pragma: NO COVER
-    OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
@@ -51,13 +46,11 @@ from .client import DatabaseAdminClient
 
 class DatabaseAdminAsyncClient:
     """Cloud Spanner Database Admin API
-
-    The Cloud Spanner Database Admin API can be used to:
-
-    -  create, drop, and list databases
-    -  update the schema of pre-existing databases
-    -  create, delete and list backups for a database
-    -  restore a database from an existing backup
+    The Cloud Spanner Database Admin API can be used to create,
+    drop, and list databases. It also enables updating the schema of
+    pre-existing databases. It can be also used to create, delete
+    and list backups for a database and to restore from an existing
+    backup.
     """
 
     _client: DatabaseAdminClient
@@ -135,42 +128,6 @@ class DatabaseAdminAsyncClient:
 
     from_service_account_json = from_service_account_file
 
-    @classmethod
-    def get_mtls_endpoint_and_cert_source(
-        cls, client_options: Optional[ClientOptions] = None
-    ):
-        """Return the API endpoint and client cert source for mutual TLS.
-
-        The client cert source is determined in the following order:
-        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
-        client cert source is None.
-        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
-        default client cert source exists, use the default one; otherwise the client cert
-        source is None.
-
-        The API endpoint is determined in the following order:
-        (1) if `client_options.api_endpoint` if provided, use the provided one.
-        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
-        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
-        use the default API endpoint.
-
-        More details can be found at https://google.aip.dev/auth/4114.
-
-        Args:
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
-                client. Only the `api_endpoint` and `client_cert_source` properties may be used
-                in this method.
-
-        Returns:
-            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
-                client cert source to use.
-
-        Raises:
-            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
-        """
-        return DatabaseAdminClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
-
     @property
     def transport(self) -> DatabaseAdminTransport:
         """Returns the transport used by the client instance.
@@ -233,10 +190,10 @@ class DatabaseAdminAsyncClient:
 
     async def list_databases(
         self,
-        request: Union[spanner_database_admin.ListDatabasesRequest, dict] = None,
+        request: spanner_database_admin.ListDatabasesRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatabasesAsyncPager:
@@ -263,7 +220,7 @@ class DatabaseAdminAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListDatabasesRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.ListDatabasesRequest`):
                 The request object. The request for
                 [ListDatabases][google.spanner.admin.database.v1.DatabaseAdmin.ListDatabases].
             parent (:class:`str`):
@@ -344,11 +301,11 @@ class DatabaseAdminAsyncClient:
 
     async def create_database(
         self,
-        request: Union[spanner_database_admin.CreateDatabaseRequest, dict] = None,
+        request: spanner_database_admin.CreateDatabaseRequest = None,
         *,
         parent: str = None,
         create_statement: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -389,7 +346,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CreateDatabaseRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.CreateDatabaseRequest`):
                 The request object. The request for
                 [CreateDatabase][google.spanner.admin.database.v1.DatabaseAdmin.CreateDatabase].
             parent (:class:`str`):
@@ -476,10 +433,10 @@ class DatabaseAdminAsyncClient:
 
     async def get_database(
         self,
-        request: Union[spanner_database_admin.GetDatabaseRequest, dict] = None,
+        request: spanner_database_admin.GetDatabaseRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> spanner_database_admin.Database:
@@ -505,7 +462,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetDatabaseRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.GetDatabaseRequest`):
                 The request object. The request for
                 [GetDatabase][google.spanner.admin.database.v1.DatabaseAdmin.GetDatabase].
             name (:class:`str`):
@@ -575,11 +532,11 @@ class DatabaseAdminAsyncClient:
 
     async def update_database_ddl(
         self,
-        request: Union[spanner_database_admin.UpdateDatabaseDdlRequest, dict] = None,
+        request: spanner_database_admin.UpdateDatabaseDdlRequest = None,
         *,
         database: str = None,
         statements: Sequence[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -619,7 +576,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.UpdateDatabaseDdlRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.UpdateDatabaseDdlRequest`):
                 The request object. Enqueues the given DDL statements to
                 be applied, in order but not necessarily all at once, to
                 the database schema at some point (or points) in the
@@ -735,17 +692,16 @@ class DatabaseAdminAsyncClient:
 
     async def drop_database(
         self,
-        request: Union[spanner_database_admin.DropDatabaseRequest, dict] = None,
+        request: spanner_database_admin.DropDatabaseRequest = None,
         *,
         database: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Drops (aka deletes) a Cloud Spanner database. Completed backups
         for the database will be retained according to their
-        ``expire_time``. Note: Cloud Spanner might continue to accept
-        requests for a few seconds after the database has been deleted.
+        ``expire_time``.
 
 
         .. code-block:: python
@@ -765,7 +721,7 @@ class DatabaseAdminAsyncClient:
                 client.drop_database(request=request)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.DropDatabaseRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.DropDatabaseRequest`):
                 The request object. The request for
                 [DropDatabase][google.spanner.admin.database.v1.DatabaseAdmin.DropDatabase].
             database (:class:`str`):
@@ -827,10 +783,10 @@ class DatabaseAdminAsyncClient:
 
     async def get_database_ddl(
         self,
-        request: Union[spanner_database_admin.GetDatabaseDdlRequest, dict] = None,
+        request: spanner_database_admin.GetDatabaseDdlRequest = None,
         *,
         database: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> spanner_database_admin.GetDatabaseDdlResponse:
@@ -860,7 +816,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetDatabaseDdlRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.GetDatabaseDdlRequest`):
                 The request object. The request for
                 [GetDatabaseDdl][google.spanner.admin.database.v1.DatabaseAdmin.GetDatabaseDdl].
             database (:class:`str`):
@@ -932,10 +888,10 @@ class DatabaseAdminAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: Union[iam_policy_pb2.SetIamPolicyRequest, dict] = None,
+        request: iam_policy_pb2.SetIamPolicyRequest = None,
         *,
         resource: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
@@ -970,7 +926,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.SetIamPolicyRequest, dict]):
+            request (:class:`google.iam.v1.iam_policy_pb2.SetIamPolicyRequest`):
                 The request object. Request message for `SetIamPolicy`
                 method.
             resource (:class:`str`):
@@ -1086,10 +1042,10 @@ class DatabaseAdminAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: Union[iam_policy_pb2.GetIamPolicyRequest, dict] = None,
+        request: iam_policy_pb2.GetIamPolicyRequest = None,
         *,
         resource: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
@@ -1125,7 +1081,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.GetIamPolicyRequest, dict]):
+            request (:class:`google.iam.v1.iam_policy_pb2.GetIamPolicyRequest`):
                 The request object. Request message for `GetIamPolicy`
                 method.
             resource (:class:`str`):
@@ -1251,11 +1207,11 @@ class DatabaseAdminAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: Union[iam_policy_pb2.TestIamPermissionsRequest, dict] = None,
+        request: iam_policy_pb2.TestIamPermissionsRequest = None,
         *,
         resource: str = None,
         permissions: Sequence[str] = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
@@ -1292,7 +1248,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.iam.v1.iam_policy_pb2.TestIamPermissionsRequest, dict]):
+            request (:class:`google.iam.v1.iam_policy_pb2.TestIamPermissionsRequest`):
                 The request object. Request message for
                 `TestIamPermissions` method.
             resource (:class:`str`):
@@ -1364,12 +1320,12 @@ class DatabaseAdminAsyncClient:
 
     async def create_backup(
         self,
-        request: Union[gsad_backup.CreateBackupRequest, dict] = None,
+        request: gsad_backup.CreateBackupRequest = None,
         *,
         parent: str = None,
         backup: gsad_backup.Backup = None,
         backup_id: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -1413,7 +1369,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CreateBackupRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.CreateBackupRequest`):
                 The request object. The request for
                 [CreateBackup][google.spanner.admin.database.v1.DatabaseAdmin.CreateBackup].
             parent (:class:`str`):
@@ -1508,13 +1464,13 @@ class DatabaseAdminAsyncClient:
 
     async def copy_backup(
         self,
-        request: Union[backup.CopyBackupRequest, dict] = None,
+        request: backup.CopyBackupRequest = None,
         *,
         parent: str = None,
         backup_id: str = None,
         source_backup: str = None,
         expire_time: timestamp_pb2.Timestamp = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -1532,34 +1488,8 @@ class DatabaseAdminAsyncClient:
         copying and delete the backup. Concurrent CopyBackup requests
         can run on the same source backup.
 
-
-        .. code-block:: python
-
-            from google.cloud import spanner_admin_database_v1
-
-            def sample_copy_backup():
-                # Create a client
-                client = spanner_admin_database_v1.DatabaseAdminClient()
-
-                # Initialize request argument(s)
-                request = spanner_admin_database_v1.CopyBackupRequest(
-                    parent="parent_value",
-                    backup_id="backup_id_value",
-                    source_backup="source_backup_value",
-                )
-
-                # Make the request
-                operation = client.copy_backup(request=request)
-
-                print("Waiting for operation to complete...")
-
-                response = operation.result()
-
-                # Handle the response
-                print(response)
-
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.CopyBackupRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.CopyBackupRequest`):
                 The request object. The request for
                 [CopyBackup][google.spanner.admin.database.v1.DatabaseAdmin.CopyBackup].
             parent (:class:`str`):
@@ -1618,7 +1548,7 @@ class DatabaseAdminAsyncClient:
 
         """
         # Create or coerce a protobuf request object.
-        # Quick check: If we got a request object, we should *not* have
+        # Sanity check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, backup_id, source_backup, expire_time])
         if request is not None and has_flattened_params:
@@ -1670,10 +1600,10 @@ class DatabaseAdminAsyncClient:
 
     async def get_backup(
         self,
-        request: Union[backup.GetBackupRequest, dict] = None,
+        request: backup.GetBackupRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> backup.Backup:
@@ -1701,7 +1631,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.GetBackupRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.GetBackupRequest`):
                 The request object. The request for
                 [GetBackup][google.spanner.admin.database.v1.DatabaseAdmin.GetBackup].
             name (:class:`str`):
@@ -1770,11 +1700,11 @@ class DatabaseAdminAsyncClient:
 
     async def update_backup(
         self,
-        request: Union[gsad_backup.UpdateBackupRequest, dict] = None,
+        request: gsad_backup.UpdateBackupRequest = None,
         *,
         backup: gsad_backup.Backup = None,
         update_mask: field_mask_pb2.FieldMask = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gsad_backup.Backup:
@@ -1801,7 +1731,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.UpdateBackupRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.UpdateBackupRequest`):
                 The request object. The request for
                 [UpdateBackup][google.spanner.admin.database.v1.DatabaseAdmin.UpdateBackup].
             backup (:class:`google.cloud.spanner_admin_database_v1.types.Backup`):
@@ -1890,10 +1820,10 @@ class DatabaseAdminAsyncClient:
 
     async def delete_backup(
         self,
-        request: Union[backup.DeleteBackupRequest, dict] = None,
+        request: backup.DeleteBackupRequest = None,
         *,
         name: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
@@ -1918,7 +1848,7 @@ class DatabaseAdminAsyncClient:
                 client.delete_backup(request=request)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.DeleteBackupRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.DeleteBackupRequest`):
                 The request object. The request for
                 [DeleteBackup][google.spanner.admin.database.v1.DatabaseAdmin.DeleteBackup].
             name (:class:`str`):
@@ -1983,10 +1913,10 @@ class DatabaseAdminAsyncClient:
 
     async def list_backups(
         self,
-        request: Union[backup.ListBackupsRequest, dict] = None,
+        request: backup.ListBackupsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBackupsAsyncPager:
@@ -2016,7 +1946,7 @@ class DatabaseAdminAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListBackupsRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.ListBackupsRequest`):
                 The request object. The request for
                 [ListBackups][google.spanner.admin.database.v1.DatabaseAdmin.ListBackups].
             parent (:class:`str`):
@@ -2096,12 +2026,12 @@ class DatabaseAdminAsyncClient:
 
     async def restore_database(
         self,
-        request: Union[spanner_database_admin.RestoreDatabaseRequest, dict] = None,
+        request: spanner_database_admin.RestoreDatabaseRequest = None,
         *,
         parent: str = None,
         database_id: str = None,
         backup: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
@@ -2152,7 +2082,7 @@ class DatabaseAdminAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.RestoreDatabaseRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.RestoreDatabaseRequest`):
                 The request object. The request for
                 [RestoreDatabase][google.spanner.admin.database.v1.DatabaseAdmin.RestoreDatabase].
             parent (:class:`str`):
@@ -2249,12 +2179,10 @@ class DatabaseAdminAsyncClient:
 
     async def list_database_operations(
         self,
-        request: Union[
-            spanner_database_admin.ListDatabaseOperationsRequest, dict
-        ] = None,
+        request: spanner_database_admin.ListDatabaseOperationsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatabaseOperationsAsyncPager:
@@ -2291,7 +2219,7 @@ class DatabaseAdminAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListDatabaseOperationsRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.ListDatabaseOperationsRequest`):
                 The request object. The request for
                 [ListDatabaseOperations][google.spanner.admin.database.v1.DatabaseAdmin.ListDatabaseOperations].
             parent (:class:`str`):
@@ -2372,10 +2300,10 @@ class DatabaseAdminAsyncClient:
 
     async def list_backup_operations(
         self,
-        request: Union[backup.ListBackupOperationsRequest, dict] = None,
+        request: backup.ListBackupOperationsRequest = None,
         *,
         parent: str = None,
-        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        retry: retries.Retry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBackupOperationsAsyncPager:
@@ -2414,7 +2342,7 @@ class DatabaseAdminAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.spanner_admin_database_v1.types.ListBackupOperationsRequest, dict]):
+            request (:class:`google.cloud.spanner_admin_database_v1.types.ListBackupOperationsRequest`):
                 The request object. The request for
                 [ListBackupOperations][google.spanner.admin.database.v1.DatabaseAdmin.ListBackupOperations].
             parent (:class:`str`):
@@ -2492,12 +2420,6 @@ class DatabaseAdminAsyncClient:
 
         # Done; return the response.
         return response
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        await self.transport.close()
 
 
 try:
