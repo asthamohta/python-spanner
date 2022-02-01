@@ -926,23 +926,6 @@ class DatabaseAdminClient(metaclass=DatabaseAdminClientMeta):
         for the database will be retained according to their
         ``expire_time``.
 
-
-        .. code-block:: python
-
-            from google.cloud import spanner_admin_database_v1
-
-            def sample_drop_database():
-                # Create a client
-                client = spanner_admin_database_v1.DatabaseAdminClient()
-
-                # Initialize request argument(s)
-                request = spanner_admin_database_v1.DropDatabaseRequest(
-                    database="database_value",
-                )
-
-                # Make the request
-                client.drop_database(request=request)
-
         Args:
             request (google.cloud.spanner_admin_database_v1.types.DropDatabaseRequest):
                 The request object. The request for
