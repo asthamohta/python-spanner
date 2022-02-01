@@ -16,9 +16,9 @@
 import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
 
-from google.api_core import grpc_helpers
-from google.api_core import operations_v1
-from google.api_core import gapic_v1
+from google.api_core import grpc_helpers  # type: ignore
+from google.api_core import operations_v1  # type: ignore
+from google.api_core import gapic_v1  # type: ignore
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
@@ -39,13 +39,11 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
     """gRPC backend transport for DatabaseAdmin.
 
     Cloud Spanner Database Admin API
-
-    The Cloud Spanner Database Admin API can be used to:
-
-    -  create, drop, and list databases
-    -  update the schema of pre-existing databases
-    -  create, delete and list backups for a database
-    -  restore a database from an existing backup
+    The Cloud Spanner Database Admin API can be used to create,
+    drop, and list databases. It also enables updating the schema of
+    pre-existing databases. It can be also used to create, delete
+    and list backups for a database and to restore from an existing
+    backup.
 
     This class defines the same methods as the primary client, so the
     primary client can load the underlying transport implementation
@@ -94,16 +92,16 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
             api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
                 If provided, it overrides the ``host`` argument and tries to create
                 a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or application default SSL credentials.
+                ``client_cert_source`` or applicatin default SSL credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 Deprecated. A callback to provide client SSL certificate bytes and
                 private key bytes, both in PEM format. It is ignored if
                 ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for the grpc channel. It is ignored if ``channel`` is provided.
+                for grpc channel. It is ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
                 A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure a mutual TLS channel. It is
+                both in PEM format. It is used to configure mutual TLS channel. It is
                 ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
             quota_project_id (Optional[str]): An optional project to use for billing
                 and quota.
@@ -124,7 +122,7 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
         self._grpc_channel = None
         self._ssl_channel_credentials = ssl_channel_credentials
         self._stubs: Dict[str, Callable] = {}
-        self._operations_client: Optional[operations_v1.OperationsClient] = None
+        self._operations_client = None
 
         if api_mtls_endpoint:
             warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
@@ -395,8 +393,7 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
 
         Drops (aka deletes) a Cloud Spanner database. Completed backups
         for the database will be retained according to their
-        ``expire_time``. Note: Cloud Spanner might continue to accept
-        requests for a few seconds after the database has been deleted.
+        ``expire_time``.
 
         Returns:
             Callable[[~.DropDatabaseRequest],
@@ -592,6 +589,44 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
                 response_deserializer=operations_pb2.Operation.FromString,
             )
         return self._stubs["create_backup"]
+
+    @property
+    def copy_backup(
+        self,
+    ) -> Callable[[backup.CopyBackupRequest], operations_pb2.Operation]:
+        r"""Return a callable for the copy backup method over gRPC.
+
+        Starts copying a Cloud Spanner Backup. The returned backup
+        [long-running operation][google.longrunning.Operation] will have
+        a name of the format
+        ``projects/<project>/instances/<instance>/backups/<backup>/operations/<operation_id>``
+        and can be used to track copying of the backup. The operation is
+        associated with the destination backup. The
+        [metadata][google.longrunning.Operation.metadata] field type is
+        [CopyBackupMetadata][google.spanner.admin.database.v1.CopyBackupMetadata].
+        The [response][google.longrunning.Operation.response] field type
+        is [Backup][google.spanner.admin.database.v1.Backup], if
+        successful. Cancelling the returned operation will stop the
+        copying and delete the backup. Concurrent CopyBackup requests
+        can run on the same source backup.
+
+        Returns:
+            Callable[[~.CopyBackupRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "copy_backup" not in self._stubs:
+            self._stubs["copy_backup"] = self.grpc_channel.unary_unary(
+                "/google.spanner.admin.database.v1.DatabaseAdmin/CopyBackup",
+                request_serializer=backup.CopyBackupRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["copy_backup"]
 
     @property
     def get_backup(self) -> Callable[[backup.GetBackupRequest], backup.Backup]:
@@ -820,9 +855,6 @@ class DatabaseAdminGrpcTransport(DatabaseAdminTransport):
                 response_deserializer=backup.ListBackupOperationsResponse.deserialize,
             )
         return self._stubs["list_backup_operations"]
-
-    def close(self):
-        self.grpc_channel.close()
 
 
 __all__ = ("DatabaseAdminGrpcTransport",)

@@ -16,6 +16,9 @@
 from .backup import (
     Backup,
     BackupInfo,
+    CopyBackupEncryptionConfig,
+    CopyBackupMetadata,
+    CopyBackupRequest,
     CreateBackupEncryptionConfig,
     CreateBackupMetadata,
     CreateBackupRequest,
@@ -31,7 +34,6 @@ from .common import (
     EncryptionConfig,
     EncryptionInfo,
     OperationProgress,
-    DatabaseDialect,
 )
 from .spanner_database_admin import (
     CreateDatabaseMetadata,
@@ -58,6 +60,9 @@ from .spanner_database_admin import (
 __all__ = (
     "Backup",
     "BackupInfo",
+    "CopyBackupEncryptionConfig",
+    "CopyBackupMetadata",
+    "CopyBackupRequest",
     "CreateBackupEncryptionConfig",
     "CreateBackupMetadata",
     "CreateBackupRequest",
@@ -71,7 +76,6 @@ __all__ = (
     "EncryptionConfig",
     "EncryptionInfo",
     "OperationProgress",
-    "DatabaseDialect",
     "CreateDatabaseMetadata",
     "CreateDatabaseRequest",
     "Database",
