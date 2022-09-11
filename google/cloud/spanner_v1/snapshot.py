@@ -57,18 +57,27 @@ def _restart_on_unavailable(
     item_buffer = []
     with trace_call(trace_name, session, attributes):
         iterator = method(request=request)
-    while True:
+    
+    cont = True
+    retries = 0
+    while cont:
+        cont = False
         try:
             for item in iterator:
                 item_buffer.append(item)
                 if item.resume_token:
                     resume_token = item.resume_token
-                    break
+                else:
+                    cont = True
         except ServiceUnavailable:
             del item_buffer[:]
             with trace_call(trace_name, session, attributes):
                 request.resume_token = resume_token
                 iterator = method(request=request)
+            cont = True
+            retries += 1
+            if(retries>5):
+                raise RuntimeError("Service Unavailable. Try again")
             continue
         except InternalServerError as exc:
             resumable_error = any(
@@ -77,10 +86,14 @@ def _restart_on_unavailable(
             )
             if not resumable_error:
                 raise
+            retries += 1 
+            if(retries>5):
+                raise 
             del item_buffer[:]
             with trace_call(trace_name, session, attributes):
                 request.resume_token = resume_token
                 iterator = method(request=request)
+            cont = True
             continue
 
         if len(item_buffer) == 0:
