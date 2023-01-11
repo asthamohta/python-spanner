@@ -65,6 +65,14 @@ DDL_STATEMENTS = (
     )
 )
 
+PANDAS_DDL_STATEMENTS = (
+    _fixtures.PANDAS_PG_DDL_STATEMENTS
+    if DATABASE_DIALECT == "POSTGRESQL"
+    else (
+        _fixtures.PANDAS_EMULATOR_DDL_STATEMENTS if USE_EMULATOR else _fixtures.PANDAS_DDL_STATEMENTS
+    )
+)
+
 retry_true = retry.RetryResult(operator.truth)
 retry_false = retry.RetryResult(operator.not_)
 

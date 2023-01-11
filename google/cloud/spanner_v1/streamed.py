@@ -21,6 +21,7 @@ from google.protobuf.struct_pb2 import Value
 from google.cloud.spanner_v1 import PartialResultSet
 from google.cloud.spanner_v1 import ResultSetMetadata
 from google.cloud.spanner_v1 import TypeCode
+from google.cloud.spanner_v1 import _pandas_helpers
 from google.cloud.spanner_v1._helpers import _parse_value_pb
 
 
@@ -145,6 +146,14 @@ class StreamedResultSet(object):
                 self._consume_next()
             except StopIteration:
                 return
+
+    def to_dataframe(self):
+        """Creates a pandas DataFrame of all rows in the result set
+        :rtype: pandas.DataFrame
+        :returns: DataFrame created from the result set
+        """
+        return _pandas_helpers.to_dataframe(self)
+
 
     def one(self):
         """Return exactly one result, or raise an exception.

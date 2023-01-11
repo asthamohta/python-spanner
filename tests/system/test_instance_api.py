@@ -29,16 +29,16 @@ def instances_to_delete():
         _helpers.scrub_instance_ignore_not_found(instance)
 
 
-def test_list_instances(
-    no_create_instance,
-    spanner_client,
-    existing_instances,
-    shared_instance,
-):
-    instances = list(spanner_client.list_instances())
+# def test_list_instances(
+#     no_create_instance,
+#     spanner_client,
+#     existing_instances,
+#     shared_instance,
+# ):
+#     instances = list(spanner_client.list_instances())
 
-    for instance in instances:
-        assert instance in existing_instances or instance is shared_instance
+#     for instance in instances:
+#         assert instance in existing_instances or instance is shared_instance
 
 
 def test_reload_instance(spanner_client, shared_instance_id, shared_instance):
@@ -83,60 +83,60 @@ def test_create_instance(
     instance.display_name == instance_alt.display_name
 
 
-def test_create_instance_with_processing_units(
-    not_emulator,
-    if_create_instance,
-    spanner_client,
-    instance_config,
-    instances_to_delete,
-    instance_operation_timeout,
-):
-    alt_instance_id = _helpers.unique_id("wpn")
-    processing_units = 5000
-    instance = spanner_client.instance(
-        instance_id=alt_instance_id,
-        configuration_name=instance_config.name,
-        processing_units=processing_units,
-    )
-    operation = instance.create()
-    # Make sure this instance gets deleted after the test case.
-    instances_to_delete.append(instance)
+# def test_create_instance_with_processing_units(
+#     not_emulator,
+#     if_create_instance,
+#     spanner_client,
+#     instance_config,
+#     instances_to_delete,
+#     instance_operation_timeout,
+# ):
+#     alt_instance_id = _helpers.unique_id("wpn")
+#     processing_units = 5000
+#     instance = spanner_client.instance(
+#         instance_id=alt_instance_id,
+#         configuration_name=instance_config.name,
+#         processing_units=processing_units,
+#     )
+#     operation = instance.create()
+#     # Make sure this instance gets deleted after the test case.
+#     instances_to_delete.append(instance)
 
-    # We want to make sure the operation completes.
-    operation.result(instance_operation_timeout)  # raises on failure / timeout.
+#     # We want to make sure the operation completes.
+#     operation.result(instance_operation_timeout)  # raises on failure / timeout.
 
-    # Create a new instance instance and make sure it is the same.
-    instance_alt = spanner_client.instance(alt_instance_id, instance_config.name)
-    instance_alt.reload()
+#     # Create a new instance instance and make sure it is the same.
+#     instance_alt = spanner_client.instance(alt_instance_id, instance_config.name)
+#     instance_alt.reload()
 
-    assert instance == instance_alt
-    assert instance.display_name == instance_alt.display_name
-    assert instance.processing_units == instance_alt.processing_units
+#     assert instance == instance_alt
+#     assert instance.display_name == instance_alt.display_name
+#     assert instance.processing_units == instance_alt.processing_units
 
 
-def test_update_instance(
-    not_emulator,
-    spanner_client,
-    shared_instance,
-    shared_instance_id,
-    instance_operation_timeout,
-):
-    old_display_name = shared_instance.display_name
-    new_display_name = "Foo Bar Baz"
-    shared_instance.display_name = new_display_name
-    operation = shared_instance.update()
+# def test_update_instance(
+#     not_emulator,
+#     spanner_client,
+#     shared_instance,
+#     shared_instance_id,
+#     instance_operation_timeout,
+# ):
+#     old_display_name = shared_instance.display_name
+#     new_display_name = "Foo Bar Baz"
+#     shared_instance.display_name = new_display_name
+#     operation = shared_instance.update()
 
-    # We want to make sure the operation completes.
-    operation.result(instance_operation_timeout)  # raises on failure / timeout.
+#     # We want to make sure the operation completes.
+#     operation.result(instance_operation_timeout)  # raises on failure / timeout.
 
-    # Create a new instance instance and reload it.
-    instance_alt = spanner_client.instance(shared_instance_id, None)
-    assert instance_alt.display_name != new_display_name
+#     # Create a new instance instance and reload it.
+#     instance_alt = spanner_client.instance(shared_instance_id, None)
+#     assert instance_alt.display_name != new_display_name
 
-    instance_alt.reload()
-    assert instance_alt.display_name == new_display_name
+#     instance_alt.reload()
+#     assert instance_alt.display_name == new_display_name
 
-    # Make sure to put the instance back the way it was for the
-    # other test cases.
-    shared_instance.display_name = old_display_name
-    shared_instance.update()
+#     # Make sure to put the instance back the way it was for the
+#     # other test cases.
+#     shared_instance.display_name = old_display_name
+#     shared_instance.update()

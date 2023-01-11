@@ -43,6 +43,7 @@ from google.cloud.spanner_v1 import TransactionSelector
 from google.cloud.spanner_v1 import TransactionOptions
 from google.cloud.spanner_v1 import RequestOptions
 from google.cloud.spanner_v1 import SpannerClient
+from google.cloud.spanner_v1 import _pandas_helpers
 from google.cloud.spanner_v1._helpers import _merge_query_options
 from google.cloud.spanner_v1._helpers import _metadata_with_prefix
 from google.cloud.spanner_v1.batch import Batch
@@ -904,6 +905,9 @@ class Database(object):
         )
         response = api.set_iam_policy(request=request, metadata=metadata)
         return response
+
+    def insert_or_update_dataframe(self, table_name, dataframe):
+        return _pandas_helpers.insert_or_update_dataframe(self, table_name, dataframe)
 
 
 class BatchCheckout(object):

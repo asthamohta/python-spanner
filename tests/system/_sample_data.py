@@ -18,6 +18,7 @@ import math
 from google.api_core import datetime_helpers
 from google.cloud._helpers import UTC
 from google.cloud import spanner_v1
+from google.cloud.spanner_v1.data_types import JsonObject
 
 
 TABLE = "contacts"
@@ -76,6 +77,11 @@ def _check_cell_data(found_cell, expected_cell, recurse_into_lists=True):
 
     elif isinstance(found_cell, float) and math.isnan(found_cell):
         assert math.isnan(expected_cell)
+
+    elif isinstance(found_cell, JsonObject) or isinstance(expected_cell, JsonObject):
+        found_cell = found_cell.serialize() if isinstance(found_cell, JsonObject) else found_cell
+        expected_cell = expected_cell.serialize() if isinstance(expected_cell, JsonObject) else expected_cell
+        assert found_cell == expected_cell
 
     elif isinstance(found_cell, list) and recurse_into_lists:
         assert len(found_cell) == len(expected_cell)

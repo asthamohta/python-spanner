@@ -130,23 +130,13 @@ CREATE TABLE contacts (
 CREATE TABLE all_types (
     pkey BIGINT NOT NULL,
     int_value INT,
-    int_array INT[],
     bool_value BOOL,
-    bool_array BOOL[],
     bytes_value BYTEA,
-    bytes_array BYTEA[],
     float_value DOUBLE PRECISION,
-    float_array DOUBLE PRECISION[],
     string_value VARCHAR(16),
-    string_array VARCHAR(16)[],
-    date_value DATE,
-    date_array DATE[],
     timestamp_value TIMESTAMPTZ,
-    timestamp_array TIMESTAMPTZ[],
     numeric_value NUMERIC,
-    numeric_array NUMERIC[],
     jsonb_value JSONB,
-    jsonb_array JSONB[],
     PRIMARY KEY (pkey) );
 CREATE TABLE counters (
     name VARCHAR(1024),
@@ -164,3 +154,75 @@ EMULATOR_DDL_STATEMENTS = [
     stmt.strip() for stmt in EMULATOR_DDL.split(";") if stmt.strip()
 ]
 PG_DDL_STATEMENTS = [stmt.strip() for stmt in PG_DDL.split(";") if stmt.strip()]
+
+PANDAS_DDL = """\
+CREATE TABLE pandas_spanner_all_types (
+    pkey INT64 NOT NULL,
+    int_value INT64,
+    int_array ARRAY<INT64>,
+    bool_value BOOL,
+    bool_array ARRAY<BOOL>,
+    bytes_value BYTES(16),
+    bytes_array ARRAY<BYTES(16)>,
+    date_value DATE,
+    date_array ARRAY<DATE>,
+    float_value FLOAT64,
+    float_array ARRAY<FLOAT64>,
+    string_value STRING(16),
+    string_array ARRAY<STRING(16)>,
+    timestamp_value TIMESTAMP,
+    timestamp_array ARRAY<TIMESTAMP>,
+    numeric_value NUMERIC,
+    numeric_array ARRAY<NUMERIC>,
+    json_value JSON,
+    json_array ARRAY<JSON> )
+    PRIMARY KEY (pkey);
+"""
+
+PANDAS_EMULATOR_DDL = """\
+CREATE TABLE pandas_spanner_all_types (
+    pkey INT64 NOT NULL,
+    int_value INT64,
+    int_array ARRAY<INT64>,
+    bool_value BOOL,
+    bool_array ARRAY<BOOL>,
+    bytes_value BYTES(16),
+    bytes_array ARRAY<BYTES(16)>,
+    date_value DATE,
+    date_array ARRAY<DATE>,
+    float_value FLOAT64,
+    float_array ARRAY<FLOAT64>,
+    string_value STRING(16),
+    string_array ARRAY<STRING(16)>,
+    timestamp_value TIMESTAMP,
+    timestamp_array ARRAY<TIMESTAMP>)
+    PRIMARY KEY (pkey);
+"""
+
+PANDAS_PG_DDL = """\
+CREATE TABLE pandas_spanner_all_types (
+    pkey BIGINT NOT NULL,
+    int_value INT,
+    int_array INT[],
+    bool_value BOOL,
+    bool_array BOOL[],
+    bytes_value BYTEA,
+    bytes_array BYTEA[],
+    date_value DATE,
+    date_array DATE[],
+    float_value DOUBLE PRECISION,
+    float_array DOUBLE PRECISION[],
+    string_value VARCHAR(16),
+    string_array VARCHAR(16)[],
+    timestamp_value TIMESTAMPTZ,
+    timestamp_array TIMESTAMPTZ[],
+    numeric_value NUMERIC,
+    numeric_array NUMERIC[],
+    jsonb_value JSONB,
+    jsonb_array JSONB[],
+    PRIMARY KEY (pkey) );
+"""
+
+PANDAS_DDL_STATEMENTS = [stmt.strip() for stmt in PANDAS_DDL.split(";") if stmt.strip()]
+PANDAS_EMULATOR_DDL_STATEMENTS = [stmt.strip() for stmt in PANDAS_EMULATOR_DDL.split(";") if stmt.strip()]
+PANDAS_PG_DDL_STATEMENTS = [stmt.strip() for stmt in PANDAS_PG_DDL.split(";") if stmt.strip()]
