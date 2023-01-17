@@ -1,5 +1,5 @@
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from google.api_core import exceptions
 import pytest
 from . import _helpers
 from google.cloud import spanner_v1
@@ -130,9 +131,6 @@ def pandas_database(shared_instance, database_operation_timeout, database_dialec
         operation = pandas_database.create()
         operation.result(database_operation_timeout)
 
-    with pandas_database.batch() as batch:
-        batch.insert(TABLE_NAME, ALL_TYPES_COLUMNS, ALL_TYPES_ROWDATA)
-
     yield pandas_database
 
     pandas_database.drop()
@@ -156,14 +154,12 @@ def test_insert_dataframe_then_read_pandas_all_types(insertion_data, pandas_data
 
     columns = insertion_data[0]
     data = [insertion_data[1]]
-    datatypes = insertion_data[2]
+    datatype = insertion_data[2]
     dataframe = pandas.DataFrame(data, columns=columns)
 
-    for column in dataframe.columns:
-        if column != 'pkey':
-            dataframe[column] = dataframe[column].astype(datatypes)
+    dataframe[columns[1]] = dataframe[columns[1]].astype(datatype)
 
-    if 'float' in datatypes:
+    if 'float' in datatype:
         data = dataframe.values.tolist()
     pandas_database.insert_or_update_dataframe(TABLE_NAME, dataframe)
 
@@ -192,10 +188,27 @@ def test_insert_dataframe_then_read_spanner_all_datatypes(pandas_database):
     with pandas_database.snapshot() as snapshot:
         rows = list(snapshot.execute_sql("SELECT * FROM {table}".format(table=TABLE_NAME)))
     _sample_data._check_rows_data(rows,ALL_TYPES_ROWDATA)
+
+
+def test_insert_dataframe_datatype_coversion_failure(pandas_database):
+    columns = ['pkey','timestamp_value']
+    data = [[108, pandas.Timedelta(1,"d")]]
+    datatype = 'timedelta64'
+
+    dataframe = pandas.DataFrame(data, columns=columns)
+    dataframe[columns[1]] = dataframe[columns[1]].astype(datatype)
+
+    with pytest.raises(exceptions.FailedPrecondition):
+        pandas_database.insert_or_update_dataframe(TABLE_NAME, dataframe)
     
 
 @pytest.mark.parametrize(("limit"), [(0), (1), (2)])
 def test_read_dataframe(limit, pandas_database):
+    with pandas_database.batch() as batch:
+        keyset = spanner_v1.KeySet(all_=True)
+        batch.delete(TABLE_NAME, keyset)
+        batch.insert(TABLE_NAME, ALL_TYPES_COLUMNS, ALL_TYPES_ROWDATA)
+
     with pandas_database.snapshot(multi_use=True) as snapshot:
         results = snapshot.execute_sql(
         "Select * from pandas_spanner_all_types limit {limit}".format(limit=limit)

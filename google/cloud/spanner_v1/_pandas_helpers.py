@@ -121,7 +121,7 @@ def insert_or_update_dataframe(database, table_name, dataframe):
         raise exc
 
 def _convert_datatype(value, datatype, operation_type):
-    if operation_type == "INSERTION":
+    if operation_type == 'INSERTION':
         if type(value) in PANDAS_NULL_TYPES or type(value) == float and math.isnan(value) or value is None:
             return None
         if 'ARRAY' in datatype:
